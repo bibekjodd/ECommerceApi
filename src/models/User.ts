@@ -1,6 +1,8 @@
 import mongoose, { InferSchemaType } from "mongoose";
 import bcrypt from "bcryptjs";
 import validator from "validator";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -67,8 +69,30 @@ userSchema.methods.comparePassword = async function (password: string) {
   return isMatch;
 };
 
-interface IUser extends mongoose.Document, InferSchemaType<typeof userSchema> {
+userSchema.methods.generateToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+};
+
+/**
+ * generates token of 20 bytes that expires after 15 minutes don't forget tosave after generating token
+ */
+userSchema.methods.getResetPasswordToken = function () {
+  const token = crypto.randomBytes(20).toString("hex");
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 60 * 1000;
+  return token;
+};
+
+export interface IUser
+  extends mongoose.Document,
+    InferSchemaType<typeof userSchema> {
   comparePassword: (password: string) => Promise<boolean>;
+  generateToken: () => string;
 }
 
 const User = mongoose.model<IUser>("User", userSchema);
