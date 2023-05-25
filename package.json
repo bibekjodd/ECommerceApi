@@ -1,0 +1,35 @@
+{
+  "name": "ecommerceapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devStart": "tsc && node dist/app.js",
+    "dev": "nodemon --exec ts-node --transpile-only src/app.ts",
+    "start": "node dist/app.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tsconfig/node16": "^1.0.4",
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.2.1",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "@typescript-eslint/parser": "^5.59.7",
+    "eslint": "^8.41.0",
+    "pre-commit": "^1.2.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
