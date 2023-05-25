@@ -6,9 +6,13 @@ import { connectDatabase } from "./config/database";
 import mongoose from "mongoose";
 import { notFound } from "./middlewares/notFound";
 import { error } from "./middlewares/error";
+import userRouter from "./routes/userRoute";
 
 // -------- initial config for api --------
 initialConfig(app);
+
+// -------- routes --------
+app.use("/api/v1/user", userRouter);
 
 // -------- database configuration --------
 connectDatabase();

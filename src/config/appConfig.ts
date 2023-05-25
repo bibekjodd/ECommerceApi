@@ -1,9 +1,11 @@
 import { z } from "zod";
 import express, { Express } from "express";
+import cookieParser from "cookie-parser";
 
 export const envVariables = z.object({
   MONGO_URI: z.string(),
   NODE_ENV: z.string(),
+  JWT_SECRET: z.string(),
 });
 
 import dotenv from "dotenv";
@@ -37,6 +39,7 @@ export const initialConfig = (app: Express) => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
   app.use((req, res, next) => {
     if (!global.envLoaded || !global.databaseConnected)
