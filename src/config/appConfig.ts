@@ -62,8 +62,9 @@ export const initialConfig = (app: Express) => {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(
-    cors({ origin: process.env.FRONTEND_URL.split(" "), credentials: true })
+    cors({ origin: process.env.FRONTEND_URL?.split(" "), credentials: true })
   );
+  app.enable('trust proxy');
 
   app.use((req, res, next) => {
     if (!global.envLoaded || !global.databaseConnected)
