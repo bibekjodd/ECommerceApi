@@ -1,11 +1,11 @@
-import { z } from "zod";
-import { envVariables } from "./src/config/appConfig";
 import { IUser } from "./src/models/User";
+import { EnvVariables } from "./src/config/appConfig";
 export {};
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof envVariables> {
+    interface ProcessEnv extends EnvVariables {
       NODE_ENV: "production" | "development";
+      FRONTEND_URL: string;
     }
   }
   namespace Express {

@@ -3,6 +3,9 @@ import { ErrorHandler } from "../utils/errorHandler";
 import { catchAsyncError } from "./catchAsyncError";
 import jwt from "jsonwebtoken";
 
+/**
+ * middleware to check if the user is valid or not from `req.cookies.token`
+ */
 export const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   try {
     const token = req.cookies?.token;
@@ -17,7 +20,7 @@ export const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
         new ErrorHandler("Please login to access this resource", 401)
       );
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id).select("+password");
     if (!user)
       return next(
         new ErrorHandler("Please login to access this resource", 401)

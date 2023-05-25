@@ -19,10 +19,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Email is mandatory field"],
       minLength: [10, "Email must be at least 4 characters"],
       maxLength: [30, "Email should not exceed 30 characters"],
-      validate: {
-        validator: validator.isEmail,
-        message: "Must provide valid email",
-      },
+      validate: [validator.isEmail, "Must provide valid email"],
     },
 
     password: {
@@ -30,7 +27,6 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is mandatory field"],
       select: false,
       minLength: [6, "Password must be at least 6 characters"],
-      maxLength: [12, "Password should not exceed 12 characters"],
       trim: true,
     },
 
@@ -93,6 +89,7 @@ export interface IUser
     InferSchemaType<typeof userSchema> {
   comparePassword: (password: string) => Promise<boolean>;
   generateToken: () => string;
+  getResetPasswordToken: () => string;
 }
 
 const User = mongoose.model<IUser>("User", userSchema);

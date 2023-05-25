@@ -10,5 +10,8 @@ export const error: ErrorRequestHandler = (err, req, res, next) => {
     statusCode = err.statusCode || 500;
   }
 
-  res.status(statusCode).json({ message });
+  res.status(statusCode).json({
+    message,
+    stack: process.env.NODE_ENV !== "production" ? err.stack : null,
+  });
 };
