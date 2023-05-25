@@ -10,13 +10,10 @@ export default async function sendEmail({
   subject?: string;
 }) {
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: true, // true for 465, false for other ports
-    service: process.env.SMTP_SERVICE,
+   service: process.env.SMTP_SERVICE,
     auth: {
-      user: process.env.SMTP_MAIL, // generated ethereal user
-      pass: process.env.SMTP_PASS, // generated ethereal password
+      user: process.env.SMTP_MAIL,
+      pass: process.env.SMTP_PASS,
     },
   });
 

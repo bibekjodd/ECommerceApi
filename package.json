@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "pre-commit": [
+    "build"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "tsc && node dist/app.js",
+    "devStart": "tsc && npm run start",
     "dev": "nodemon --exec ts-node --transpile-only src/app.ts",
-    "start": "node dist/app.ts",
+    "start": "node dist/app.js",
     "build": "tsc"
   },
   "keywords": [],
