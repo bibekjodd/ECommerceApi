@@ -45,6 +45,9 @@ const initialConfig = (app) => {
         api_secret: process.env.CLOUDINARY_API_SECRET,
         cloud_name: process.env.CLOUDINARY_API_CLOUD_NAME,
     });
+    app.all("/", (req, res) => {
+        res.json({ message: "Server is running fine" });
+    });
     app.all("/api/status", (req, res) => {
         res.status(200).json({
             message: "Server is running",

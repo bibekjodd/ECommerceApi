@@ -11,7 +11,7 @@
     "devStart": "tsc && npm run start",
     "dev": "nodemon --exec ts-node --transpile-only src/app.ts",
     "start": "node dist/app.js",
-    "build": "tsc"
+    "build": "rimraf dist && tsc"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +28,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.1",
     "nodemailer": "^6.9.2",
+    "rimraf": "^5.0.1",
     "validator": "^13.9.0",
     "zod": "^3.21.4"
   },
