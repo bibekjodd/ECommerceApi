@@ -31,14 +31,8 @@ const userSchema = new mongoose.Schema(
     },
 
     avatar: {
-      public_id: {
-        type: String,
-        default: "not_set",
-      },
-      url: {
-        type: String,
-        default: "not_set",
-      },
+      public_id: String,
+      url: String,
     },
 
     emailVerified: {
