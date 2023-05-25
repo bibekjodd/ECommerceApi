@@ -61,7 +61,9 @@ export const initialConfig = (app: Express) => {
   app.use(express.json({ limit: "0.5mb" }));
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
-  app.use(cors({ origin: process.env.FRONTEND_URL.split(" ") }));
+  app.use(
+    cors({ origin: process.env.FRONTEND_URL.split(" "), credentials: true })
+  );
 
   app.use((req, res, next) => {
     if (!global.envLoaded || !global.databaseConnected)
