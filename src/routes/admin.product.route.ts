@@ -3,6 +3,7 @@ import { isAuthenticatedUser, isAdmin } from "../middlewares/auth";
 import {
   createProduct,
   deleteProduct,
+  getProductDetails,
   updateProduct,
 } from "../controllers/admin.product.controller";
 
@@ -17,6 +18,7 @@ router
 router
   .route("/admin/product/:id")
   .put(isAuthenticatedUser, isAdmin, updateProduct)
-  .delete(isAuthenticatedUser, isAdmin, deleteProduct);
+  .delete(isAuthenticatedUser, isAdmin, deleteProduct)
+  .get(isAuthenticatedUser, isAdmin, getProductDetails);
 
 export default router;
