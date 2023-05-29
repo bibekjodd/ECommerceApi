@@ -1,9 +1,9 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import User from "../models/User.Model";
-import { ErrorHandler } from "../utils/errorHandler";
+import { ErrorHandler } from "../lib/errorHandler";
 import cloudinary from "cloudinary";
-import sendToken, { cookieOptions } from "../utils/sendToken";
-import sendEmail from "../utils/sendEmail";
+import sendToken, { cookieOptions } from "../lib/sendToken";
+import sendEmail from "../lib/sendEmail";
 import crypto from "crypto";
 
 interface RegisterUserBody {
@@ -30,7 +30,7 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
     const user = await User.create({ name, email, password });
     if (avatar) {
       const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-        folder: "MernApi/UserAvatars",
+        folder: "ecomapi/useravatars",
       });
       user.avatar = {
         public_id: myCloud.public_id,
