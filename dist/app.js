@@ -11,6 +11,7 @@ const notFound_1 = require("./middlewares/notFound");
 const error_1 = require("./middlewares/error");
 const user_route_1 = __importDefault(require("./routes/user.route"));
 const product_route_1 = __importDefault(require("./routes/product.route"));
+const product_review_route_1 = __importDefault(require("./routes/product.review.route"));
 const admin_route_1 = __importDefault(require("./routes/admin.route"));
 const admin_user_route_1 = __importDefault(require("./routes/admin.user.route"));
 const admin_product_route_1 = __importDefault(require("./routes/admin.product.route"));
@@ -21,6 +22,7 @@ const database_1 = __importDefault(require("./config/database"));
 // -------- routes --------
 app.use("/api/v1", user_route_1.default);
 app.use("/api/v1", product_route_1.default);
+app.use("/api/v1", product_review_route_1.default);
 app.use("/api/v1", admin_route_1.default);
 app.use("/api/v1", admin_user_route_1.default);
 app.use("/api/v1", admin_product_route_1.default);

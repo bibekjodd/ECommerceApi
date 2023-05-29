@@ -70,7 +70,7 @@ exports.deleteProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
     res.status(200).json({ message: "Product deleted successfully" });
 });
 exports.getProductDetails = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
-    const product = await Product_Model_1.default.findById(req.params.id).populate("owner");
+    const product = await Product_Model_1.default.findById(req.params.id).populate("owner").populate('reviews');
     if (!product)
         return next(new errorHandler_1.ErrorHandler("Product with this id doens't exist", 400));
     res.status(200).json({ product });

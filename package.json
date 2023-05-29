@@ -10,6 +10,9 @@
     "start": "node dist/app.js",
     "build": "rimraf dist && tsc"
   },
+  "pre-commit": [
+    "build"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
