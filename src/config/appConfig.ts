@@ -1,44 +1,14 @@
 import cloudinary from "cloudinary";
-import { z } from "zod";
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
-const envVariables = z.object({
-  MONGO_URI: z.string().min(1),
-  NODE_ENV: z.string().min(1),
-  JWT_SECRET: z.string().min(1),
-  CLOUDINARY_API_KEY: z.string().min(1),
-  CLOUDINARY_API_SECRET: z.string().min(1),
-  CLOUDINARY_API_CLOUD_NAME: z.string().min(1),
-  SMTP_PASS: z.string().min(1),
-  SMTP_SERVICE: z.string().min(1),
-  SMTP_MAIL: z.string().min(1),
-});
-
-export type EnvVariables = z.infer<typeof envVariables>;
-
-import dotenv from "dotenv";
-global.envLoaded = false;
-
-// configuration for environment variables
-const envConfig = () => {
-  if (process.env.NODE_ENV !== "production") {
-    dotenv.config({
-      path: ".env",
-    });
-  }
-  try {
-    envVariables.parse(process.env);
-    global.envLoaded = true;
-  } catch (error) {
-    console.log("Env variables are not loaded".red);
-    global.envLoaded = false;
-  }
-};
+import validateEnv from "../lib/validateEnv";
+import { catchAsyncError } from "../middlewares/catchAsyncError";
+import mongoose from "mongoose";
+import { connectDatabase } from "./database";
 
 export const initialConfig = (app: Express) => {
-  envConfig();
+  validateEnv();
 
   cloudinary.v2.config({
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -46,15 +16,37 @@ export const initialConfig = (app: Express) => {
     cloud_name: process.env.CLOUDINARY_API_CLOUD_NAME,
   });
 
-  app.all("/", (req, res) => {
-    res.json({ message: "Server is running fine" });
+  app.use(
+    catchAsyncError(async (req, res, next) => {
+      if (
+        mongoose.ConnectionStates.disconnected ||
+        mongoose.connections.length < 1
+      ) {
+        console.log("attempt");
+        await connectDatabase();
+      }
+
+      next();
+    })
+  );
+
+  app.get("/", (req, res) => {
+    res.json({
+      message:
+        envLoaded && databaseConnected
+          ? "Server is running fine"
+          : "Server started but might have some error",
+    });
   });
 
-  app.all("/api/status", (req, res) => {
+  app.get("/api/status", (req, res) => {
     res.status(200).json({
       message: "Server is running",
       envLoaded: global.envLoaded,
       databaseConnected: global.databaseConnected,
+      NODE_ENV: process.env.NODE_ENV,
+      mongooseConnections: mongoose.connections.length,
+      FRONTEND_URL: process.env.FRONTEND_URL?.split(" ") || [],
     });
   });
 
@@ -62,13 +54,16 @@ export const initialConfig = (app: Express) => {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(
-    cors({ origin: process.env.FRONTEND_URL?.split(" "), credentials: true })
+    cors({
+      origin: process.env.FRONTEND_URL?.split(" ") || [],
+      credentials: true,
+    })
   );
-  app.enable('trust proxy');
+  app.enable("trust proxy");
 
   app.use((req, res, next) => {
     if (!global.envLoaded || !global.databaseConnected)
-      return res.status(100).json({
+      return res.status(500).json({
         message: "Server configuration error",
       });
 

@@ -1,9 +1,9 @@
-import { IUser } from "./src/models/User";
-import { EnvVariables } from "./src/config/appConfig";
+import { EnvType } from "./src/lib/validateEnv";
+import { IUser } from "./src/models/User.Model";
 export {};
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends EnvVariables {
+    interface ProcessEnv extends EnvType {
       NODE_ENV: "production" | "development";
       FRONTEND_URL: string;
     }

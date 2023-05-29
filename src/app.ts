@@ -6,18 +6,18 @@ import { connectDatabase } from "./config/database";
 import mongoose from "mongoose";
 import { notFound } from "./middlewares/notFound";
 import { error } from "./middlewares/error";
-import userRouter from "./routes/userRoute";
-import adminRouter from "./routes/adminRoute";
+import userRouter from "./routes/user.route";
+import adminRouter from "./routes/admin.route";
 
 // -------- initial config for api --------
 initialConfig(app);
 
+connectDatabase();
 // -------- routes --------
 app.use("/api/v1", userRouter);
 app.use("/api/v1", adminRouter);
 
 // -------- database configuration --------
-connectDatabase();
 mongoose.connection.once("open", () => {
   global.databaseConnected = true;
 });
