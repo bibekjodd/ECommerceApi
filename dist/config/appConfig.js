@@ -21,8 +21,8 @@ const initialConfig = (app) => {
     });
     app.use((0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
         if (mongoose_1.default.ConnectionStates.disconnected ||
-            mongoose_1.default.connections.length < 1) {
-            console.log("attempt");
+            mongoose_1.default.connections.length < 1 ||
+            mongoose_1.default.ConnectionStates.uninitialized) {
             await (0, database_1.connectDatabase)();
         }
         next();
@@ -44,6 +44,14 @@ const initialConfig = (app) => {
             FRONTEND_URL: process.env.FRONTEND_URL?.split(" ") || [],
         });
     });
+    app.get("/refresh", (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
+        if (mongoose_1.default.connections.length < 1 ||
+            mongoose_1.default.ConnectionStates.disconnected ||
+            mongoose_1.default.ConnectionStates.uninitialized) {
+            await (0, database_1.connectDatabase)();
+        }
+        res.status(200).json({ message: "Refreshed" });
+    }));
     app.use(express_1.default.json({ limit: "0.5mb" }));
     app.use(express_1.default.urlencoded({ extended: true }));
     app.use((0, cookie_parser_1.default)());
