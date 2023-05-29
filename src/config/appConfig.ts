@@ -4,8 +4,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import validateEnv from "../lib/validateEnv";
 import { catchAsyncError } from "../middlewares/catchAsyncError";
-import mongoose, { Mongoose } from "mongoose";
-import { connectDatabase } from "./database";
+import mongoose from "mongoose";
+import connectDatabase from "./database";
 
 export const initialConfig = (app: Express) => {
   validateEnv();
@@ -14,6 +14,14 @@ export const initialConfig = (app: Express) => {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
     cloud_name: process.env.CLOUDINARY_API_CLOUD_NAME,
+  });
+
+  mongoose.connection.once("open", () => {
+    global.databaseConnected = true;
+  });
+
+  mongoose.connection.once("error", () => {
+    global.databaseConnected = false;
   });
 
   app.use(
@@ -36,6 +44,8 @@ export const initialConfig = (app: Express) => {
         envLoaded && databaseConnected
           ? "Server is running fine"
           : "Server started but might have some error",
+      databaseConnected,
+      envLoaded,
     });
   });
 
@@ -52,7 +62,7 @@ export const initialConfig = (app: Express) => {
 
   app.get(
     "/refresh",
-    catchAsyncError(async (req, res, next) => {
+    catchAsyncError(async (req, res) => {
       if (
         mongoose.connections.length < 1 ||
         mongoose.ConnectionStates.disconnected ||
@@ -60,7 +70,7 @@ export const initialConfig = (app: Express) => {
       ) {
         await connectDatabase();
       }
-      res.status(200).json({ message: "Refreshed" });
+      res.status(200).json({ message: "Server Refreshed" });
     })
   );
 
@@ -78,7 +88,7 @@ export const initialConfig = (app: Express) => {
   app.use((req, res, next) => {
     if (!global.envLoaded || !global.databaseConnected)
       return res.status(500).json({
-        message: "Server configuration error",
+        message: "Server has configuration issues",
       });
 
     next();

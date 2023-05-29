@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAdmin = exports.isAuthenticatedUser = void 0;
 const User_Model_1 = __importDefault(require("../models/User.Model"));
-const errorHandler_1 = require("../utils/errorHandler");
+const errorHandler_1 = require("../lib/errorHandler");
 const catchAsyncError_1 = require("./catchAsyncError");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 /**

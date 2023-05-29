@@ -11,7 +11,7 @@ const cors_1 = __importDefault(require("cors"));
 const validateEnv_1 = __importDefault(require("../lib/validateEnv"));
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const mongoose_1 = __importDefault(require("mongoose"));
-const database_1 = require("./database");
+const database_1 = __importDefault(require("./database"));
 const initialConfig = (app) => {
     (0, validateEnv_1.default)();
     cloudinary_1.default.v2.config({
@@ -19,11 +19,17 @@ const initialConfig = (app) => {
         api_secret: process.env.CLOUDINARY_API_SECRET,
         cloud_name: process.env.CLOUDINARY_API_CLOUD_NAME,
     });
+    mongoose_1.default.connection.once("open", () => {
+        global.databaseConnected = true;
+    });
+    mongoose_1.default.connection.once("error", () => {
+        global.databaseConnected = false;
+    });
     app.use((0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
         if (mongoose_1.default.ConnectionStates.disconnected ||
             mongoose_1.default.connections.length < 1 ||
             mongoose_1.default.ConnectionStates.uninitialized) {
-            await (0, database_1.connectDatabase)();
+            await (0, database_1.default)();
         }
         next();
     }));
@@ -32,6 +38,8 @@ const initialConfig = (app) => {
             message: envLoaded && databaseConnected
                 ? "Server is running fine"
                 : "Server started but might have some error",
+            databaseConnected,
+            envLoaded,
         });
     });
     app.get("/api/status", (req, res) => {
@@ -44,13 +52,13 @@ const initialConfig = (app) => {
             FRONTEND_URL: process.env.FRONTEND_URL?.split(" ") || [],
         });
     });
-    app.get("/refresh", (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
+    app.get("/refresh", (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
         if (mongoose_1.default.connections.length < 1 ||
             mongoose_1.default.ConnectionStates.disconnected ||
             mongoose_1.default.ConnectionStates.uninitialized) {
-            await (0, database_1.connectDatabase)();
+            await (0, database_1.default)();
         }
-        res.status(200).json({ message: "Refreshed" });
+        res.status(200).json({ message: "Server Refreshed" });
     }));
     app.use(express_1.default.json({ limit: "0.5mb" }));
     app.use(express_1.default.urlencoded({ extended: true }));
@@ -63,7 +71,7 @@ const initialConfig = (app) => {
     app.use((req, res, next) => {
         if (!global.envLoaded || !global.databaseConnected)
             return res.status(500).json({
-                message: "Server configuration error",
+                message: "Server has configuration issues",
             });
         next();
     });

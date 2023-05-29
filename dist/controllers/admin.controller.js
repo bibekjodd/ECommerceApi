@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUser = exports.updateUserRole = exports.getSingleUser = exports.getAllUser = void 0;
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const User_Model_1 = __importDefault(require("../models/User.Model"));
-const errorHandler_1 = require("../utils/errorHandler");
+const errorHandler_1 = require("../lib/errorHandler");
 const cloudinary_1 = __importDefault(require("cloudinary"));
 exports.getAllUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
     const users = await User_Model_1.default.find();

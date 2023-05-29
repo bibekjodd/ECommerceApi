@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
 global.databaseConnected = false;
-export const connectDatabase = async () => {
+export default async function connectDatabase() {
+  
+
   try {
     const { connection } = await mongoose.connect(process.env.MONGO_URI);
     console.log(`Mongodb connected to ${connection.host}`.magenta);
@@ -10,4 +12,4 @@ export const connectDatabase = async () => {
     console.log(`Error occurred while connecting mongodb`.red);
     global.databaseConnected = false;
   }
-};
+}

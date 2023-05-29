@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.error = void 0;
-const errorHandler_1 = require("../utils/errorHandler");
+const errorHandler_1 = require("../lib/errorHandler");
 const error = (err, req, res, next) => {
     let message = "Internal Server Error";
     let statusCode = 500;

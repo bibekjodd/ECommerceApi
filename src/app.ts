@@ -2,12 +2,14 @@ import express from "express";
 const app = express();
 import "colors";
 import { initialConfig } from "./config/appConfig";
-import { connectDatabase } from "./config/database";
-import mongoose from "mongoose";
 import { notFound } from "./middlewares/notFound";
 import { error } from "./middlewares/error";
 import userRouter from "./routes/user.route";
+import productRouter from "./routes/product.route";
 import adminRouter from "./routes/admin.route";
+import adminUserRouter from "./routes/admin.user.route";
+import adminProductRouter from "./routes/admin.product.route";
+import connectDatabase from "./config/database";
 
 // -------- initial config for api --------
 initialConfig(app);
@@ -15,16 +17,10 @@ initialConfig(app);
 connectDatabase();
 // -------- routes --------
 app.use("/api/v1", userRouter);
+app.use("/api/v1", productRouter);
 app.use("/api/v1", adminRouter);
-
-// -------- database configuration --------
-mongoose.connection.once("open", () => {
-  global.databaseConnected = true;
-});
-
-mongoose.connection.once("error", () => {
-  global.databaseConnected = false;
-});
+app.use("/api/v1", adminUserRouter);
+app.use("/api/v1", adminProductRouter);
 
 app.use(notFound);
 app.use(error);

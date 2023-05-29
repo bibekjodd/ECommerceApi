@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "pre-commit": [
-    "build"
-  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "devStart": "tsc && npm run start",

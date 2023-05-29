@@ -29,10 +29,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateProfile = exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.deleteProfile = exports.logout = exports.getUserDetails = exports.loginUser = exports.registerUser = void 0;
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const User_Model_1 = __importDefault(require("../models/User.Model"));
-const errorHandler_1 = require("../utils/errorHandler");
+const errorHandler_1 = require("../lib/errorHandler");
 const cloudinary_1 = __importDefault(require("cloudinary"));
-const sendToken_1 = __importStar(require("../utils/sendToken"));
-const sendEmail_1 = __importDefault(require("../utils/sendEmail"));
+const sendToken_1 = __importStar(require("../lib/sendToken"));
+const sendEmail_1 = __importDefault(require("../lib/sendEmail"));
 const crypto_1 = __importDefault(require("crypto"));
 /**
  * register user api
@@ -48,7 +48,7 @@ exports.registerUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, n
     const user = await User_Model_1.default.create({ name, email, password });
     if (avatar) {
         const myCloud = await cloudinary_1.default.v2.uploader.upload(avatar, {
-            folder: "MernApi/UserAvatars",
+            folder: "ecomapi/useravatars",
         });
         user.avatar = {
             public_id: myCloud.public_id,
