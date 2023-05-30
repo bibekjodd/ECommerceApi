@@ -8,7 +8,7 @@
 
 - I'm currently working on [ECommerce API](https://github.com/bibekjodd/ECommerceApi)
 - This is ECommerce API built on Express, Typescript and Mongodb.
-- Update: Only user routes are available till now.
+- Update: Only user and product routes are available till now.
 
 
 
