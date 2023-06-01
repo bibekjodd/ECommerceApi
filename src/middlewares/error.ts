@@ -1,5 +1,6 @@
 import { ErrorRequestHandler } from "express";
 import { ErrorHandler } from "../lib/errorHandler";
+import { z } from "zod";
 
 export const error: ErrorRequestHandler = (err, req, res, next) => {
   let message = "Internal Server Error";

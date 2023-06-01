@@ -5,6 +5,7 @@ import cloudinary from "cloudinary";
 import sendToken, { cookieOptions } from "../lib/sendToken";
 import sendEmail from "../lib/sendEmail";
 import crypto from "crypto";
+import { uploadImage } from "../lib/cloudinary";
 
 interface RegisterUserBody {
   name?: string;
@@ -29,13 +30,13 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
 
     const user = await User.create({ name, email, password });
     if (avatar) {
-      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-        folder: "ecomapi/useravatars",
-      });
-      user.avatar = {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      };
+      const res = await uploadImage(avatar);
+      if (res) {
+        user.avatar = {
+          public_id: res.public_id,
+          url: res.url,
+        };
+      }
       await user.save();
     }
 
@@ -184,15 +185,14 @@ export const updateProfile = catchAsyncError<
   let uploadFailed = false;
   if (avatar) {
     try {
-      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-        folder: "MernApi/UserAvatars",
-      });
-      req.user.avatar = {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      };
+      const res = await uploadImage(avatar);
+      if (res) {
+        req.user.avatar = {
+          public_id: res.public_id,
+          url: res.url,
+        };
+      }
     } catch (err) {
-      //
       uploadFailed = true;
     }
   }

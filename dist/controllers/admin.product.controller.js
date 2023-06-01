@@ -4,28 +4,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProductDetails = exports.deleteProduct = exports.updateProduct = exports.createProduct = void 0;
-const validateProduct_1 = __importDefault(require("../lib/validateProduct"));
+const validateProduct_1 = require("../lib/validateProduct");
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const Product_Model_1 = __importDefault(require("../models/Product.Model"));
 const errorHandler_1 = require("../lib/errorHandler");
-const cloudinary_1 = __importDefault(require("cloudinary"));
-exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
-    if (!(0, validateProduct_1.default)(req.body))
-        return next(new errorHandler_1.ErrorHandler("Please enter valid data on product field", 400));
+const cloudinary_1 = require("../lib/cloudinary");
+exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
+    (0, validateProduct_1.validateProduct)(req.body);
     const { images, ...productDetails } = req.body;
     let product = new Product_Model_1.default({
         ...productDetails,
         owner: req.user._id,
     });
+    product.tags = product.tags.slice(0, 5);
+    switch (product.category) {
+        case "mobile":
+            break;
+        case "laptop":
+            break;
+        case "electronics":
+            break;
+        default:
+            delete product["ram"];
+    }
+    product.sizes = product.sizes.filter((size) => {
+        return (size === "sm" ||
+            size === "md" ||
+            size === "lg" ||
+            size === "xl" ||
+            size === "2xl");
+    });
+    product.colors = product.colors.slice(0, 7);
     if (images) {
-        for (const image of images) {
-            try {
-                const { public_id, secure_url } = await cloudinary_1.default.v2.uploader.upload(image, { folder: "ecomapi/productimages" });
-                product.images.push({ public_id, url: secure_url });
-            }
-            catch (err) {
-                //
-            }
+        for (const image of images.slice(0, 5)) {
+            const res = await (0, cloudinary_1.uploadImage)(image);
+            if (res)
+                product.images.push({
+                    public_id: res.public_id,
+                    url: res.url,
+                });
         }
     }
     product = await product.save();
@@ -37,30 +54,25 @@ exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, 
     const product = await Product_Model_1.default.findById(req.params.id);
     if (!product)
         return next(new errorHandler_1.ErrorHandler("Product with this id doesn't exist", 400));
-    const { images, category, price, stock, title, description } = req.body;
-    if (category)
-        product.category = category;
-    if (price)
-        product.price = price;
-    if (stock)
-        product.stock = stock;
-    if (title)
-        product.title = title;
-    if (description)
-        product.description = description;
+    (0, validateProduct_1.validateUpdateProduct)(req.body);
+    const { images, ...productDetails } = req.body;
+    for (const key of Object.keys(productDetails)) {
+        // @ts-ignore
+        product[key] = productDetails[key];
+    }
     if (images) {
-        for (const image of images) {
-            try {
-                const { public_id, secure_url } = await cloudinary_1.default.v2.uploader.upload(image, { folder: "ecomapi/productimages" });
-                product.images.push({
-                    public_id,
-                    url: secure_url,
-                });
-            }
-            catch (err) {
-                //
+        let delIndex = 0;
+        for (const image of images.add.slice(0, 5)) {
+            await (0, cloudinary_1.deleteImage)(product.images[images.indexesToDelete[delIndex]].public_id);
+            const res = await (0, cloudinary_1.uploadImage)(image);
+            if (res) {
+                product.images[images.indexesToDelete[delIndex]] = {
+                    public_id: res.public_id,
+                    url: res.url,
+                };
             }
         }
+        delIndex++;
     }
     await product.save();
     res.status(200).json({ message: "Product updated successfully" });
@@ -70,7 +82,9 @@ exports.deleteProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
     res.status(200).json({ message: "Product deleted successfully" });
 });
 exports.getProductDetails = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
-    const product = await Product_Model_1.default.findById(req.params.id).populate("owner").populate('reviews');
+    const product = await Product_Model_1.default.findById(req.params.id)
+        .populate("owner")
+        .populate("reviews");
     if (!product)
         return next(new errorHandler_1.ErrorHandler("Product with this id doens't exist", 400));
     res.status(200).json({ product });

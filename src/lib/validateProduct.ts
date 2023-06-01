@@ -1,20 +1,23 @@
-import { z } from "zod";
-const productBody = z.object({
-  title: z.string().min(4),
-  description: z.string().min(4).optional(),
-  price: z.number().min(0).positive(),
-  stock: z.number().min(1).positive(),
-  category: z.string().min(4),
-  images: z.string().array().optional(),
-})
+import { ErrorHandler } from "./errorHandler";
+import {
+  ProductValidationBody,
+  UpdateProductValidationBody,
+  productSchema,
+  updateProductSchema,
+} from "./productValidationSchemas";
 
-export type ProductBody = z.infer<typeof productBody>;
-
-export default function validateProduct(product: ProductBody) {
+export function validateProduct(product: ProductValidationBody) {
   try {
-    productBody.parse(product);
-    return true;
+    productSchema.parse(product);
   } catch (error) {
-    return false;
+    throw new ErrorHandler("Product validation failed", 400);
+  }
+}
+
+export function validateUpdateProduct(product: UpdateProductValidationBody) {
+  try {
+    updateProductSchema.parse(product);
+  } catch (error) {
+    throw new ErrorHandler("Product validation failed", 400);
   }
 }

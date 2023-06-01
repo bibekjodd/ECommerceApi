@@ -1,21 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const zod_1 = require("zod");
-const productBody = zod_1.z.object({
-    title: zod_1.z.string().min(4),
-    description: zod_1.z.string().min(4).optional(),
-    price: zod_1.z.number().min(0).positive(),
-    stock: zod_1.z.number().min(1).positive(),
-    category: zod_1.z.string().min(4),
-    images: zod_1.z.string().array().optional(),
-});
+exports.validateUpdateProduct = exports.validateProduct = void 0;
+const errorHandler_1 = require("./errorHandler");
+const productValidationSchemas_1 = require("./productValidationSchemas");
 function validateProduct(product) {
     try {
-        productBody.parse(product);
-        return true;
+        productValidationSchemas_1.productSchema.parse(product);
     }
     catch (error) {
-        return false;
+        throw new errorHandler_1.ErrorHandler("Product validation failed", 400);
     }
 }
-exports.default = validateProduct;
+exports.validateProduct = validateProduct;
+function validateUpdateProduct(product) {
+    try {
+        productValidationSchemas_1.updateProductSchema.parse(product);
+    }
+    catch (error) {
+        throw new errorHandler_1.ErrorHandler("Product validation failed", 400);
+    }
+}
+exports.validateUpdateProduct = validateUpdateProduct;

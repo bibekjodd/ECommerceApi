@@ -19,10 +19,23 @@ const productSchema = new mongoose_1.default.Schema({
         required: [true, "Please Enter product Price"],
         maxLength: [8, "Price cannot exceed 8 characters"],
     },
+    discountRate: {
+        type: Number,
+        default: 0,
+    },
     ratings: {
         type: Number,
         default: 0,
     },
+    tags: [{ type: String }],
+    ram: { type: Number },
+    sizes: [{ type: String }],
+    colors: [
+        {
+            code: String,
+            value: String,
+        },
+    ],
     images: [
         {
             public_id: {

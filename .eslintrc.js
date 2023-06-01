@@ -14,5 +14,6 @@ module.exports = {
   rules: {
     "@typescript-eslint/ban-ts-comment": "off",
     "no-var": "off",
+    "prefer-const": "warn",
   },
 };

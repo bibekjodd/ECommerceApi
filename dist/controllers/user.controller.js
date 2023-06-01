@@ -30,10 +30,10 @@ exports.updateProfile = exports.updatePassword = exports.resetPassword = exports
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const User_Model_1 = __importDefault(require("../models/User.Model"));
 const errorHandler_1 = require("../lib/errorHandler");
-const cloudinary_1 = __importDefault(require("cloudinary"));
 const sendToken_1 = __importStar(require("../lib/sendToken"));
 const sendEmail_1 = __importDefault(require("../lib/sendEmail"));
 const crypto_1 = __importDefault(require("crypto"));
+const cloudinary_1 = require("../lib/cloudinary");
 /**
  * register user api
  * `avatar` must be passed as datauri
@@ -47,13 +47,13 @@ exports.registerUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, n
         return next(new errorHandler_1.ErrorHandler("User with same email already exists", 400));
     const user = await User_Model_1.default.create({ name, email, password });
     if (avatar) {
-        const myCloud = await cloudinary_1.default.v2.uploader.upload(avatar, {
-            folder: "ecomapi/useravatars",
-        });
-        user.avatar = {
-            public_id: myCloud.public_id,
-            url: myCloud.secure_url,
-        };
+        const res = await (0, cloudinary_1.uploadImage)(avatar);
+        if (res) {
+            user.avatar = {
+                public_id: res.public_id,
+                url: res.url,
+            };
+        }
         await user.save();
     }
     (0, sendToken_1.default)(user, res, 201);
@@ -151,16 +151,15 @@ exports.updateProfile = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
     let uploadFailed = false;
     if (avatar) {
         try {
-            const myCloud = await cloudinary_1.default.v2.uploader.upload(avatar, {
-                folder: "MernApi/UserAvatars",
-            });
-            req.user.avatar = {
-                public_id: myCloud.public_id,
-                url: myCloud.secure_url,
-            };
+            const res = await (0, cloudinary_1.uploadImage)(avatar);
+            if (res) {
+                req.user.avatar = {
+                    public_id: res.public_id,
+                    url: res.url,
+                };
+            }
         }
         catch (err) {
-            //
             uploadFailed = true;
         }
     }

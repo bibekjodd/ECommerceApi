@@ -1,75 +1,98 @@
-import validateProduct, { ProductBody } from "../lib/validateProduct";
+import { validateProduct, validateUpdateProduct } from "../lib/validateProduct";
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import Product from "../models/Product.Model";
 import { ErrorHandler } from "../lib/errorHandler";
-import cloudinary from "cloudinary";
+import { deleteImage, uploadImage } from "../lib/cloudinary";
+import {
+  ProductValidationBody,
+  UpdateProductValidationBody,
+} from "../lib/productValidationSchemas";
 
-export const createProduct = catchAsyncError<unknown, unknown, ProductBody>(
-  async (req, res, next) => {
-    if (!validateProduct(req.body))
-      return next(
-        new ErrorHandler("Please enter valid data on product field", 400)
-      );
+export const createProduct = catchAsyncError<
+  unknown,
+  unknown,
+  ProductValidationBody
+>(async (req, res) => {
+  validateProduct(req.body);
 
-    const { images, ...productDetails } = req.body;
-    let product = new Product({
-      ...productDetails,
-      owner: req.user._id,
-    });
+  const { images, ...productDetails } = req.body;
+  let product = new Product({
+    ...productDetails,
+    owner: req.user._id,
+  });
 
-    if (images) {
-      for (const image of images) {
-        try {
-          const { public_id, secure_url } = await cloudinary.v2.uploader.upload(
-            image,
-            { folder: "ecomapi/productimages" }
-          );
-          product.images.push({ public_id, url: secure_url });
-        } catch (err) {
-          //
-        }
-      }
-    }
-
-    product = await product.save();
-
-    return res
-      .status(201)
-      .json({ product, message: "Product created successfully" });
+  product.tags = product.tags.slice(0, 5);
+  switch (product.category) {
+    case "mobile":
+      break;
+    case "laptop":
+      break;
+    case "electronics":
+      break;
+    default:
+      delete product["ram"];
   }
-);
+  product.sizes = product.sizes.filter((size) => {
+    return (
+      size === "sm" ||
+      size === "md" ||
+      size === "lg" ||
+      size === "xl" ||
+      size === "2xl"
+    );
+  });
+  product.colors = product.colors.slice(0, 7);
+
+  if (images) {
+    for (const image of images.slice(0, 5)) {
+      const res = await uploadImage(image);
+      if (res)
+        product.images.push({
+          public_id: res.public_id,
+          url: res.url,
+        });
+    }
+  }
+
+  product = await product.save();
+
+  return res
+    .status(201)
+    .json({ product, message: "Product created successfully" });
+});
 
 export const updateProduct = catchAsyncError<
   { id: string },
   unknown,
-  Partial<ProductBody>
+  UpdateProductValidationBody
 >(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
   if (!product)
     return next(new ErrorHandler("Product with this id doesn't exist", 400));
 
-  const { images, category, price, stock, title, description } = req.body;
-  if (category) product.category = category;
-  if (price) product.price = price;
-  if (stock) product.stock = stock;
-  if (title) product.title = title;
-  if (description) product.description = description;
+  validateUpdateProduct(req.body);
+
+  const { images, ...productDetails } = req.body;
+  for (const key of Object.keys(productDetails)) {
+    // @ts-ignore
+    product[key] = productDetails[key];
+  }
 
   if (images) {
-    for (const image of images) {
-      try {
-        const { public_id, secure_url } = await cloudinary.v2.uploader.upload(
-          image,
-          { folder: "ecomapi/productimages" }
-        );
-        product.images.push({
-          public_id,
-          url: secure_url,
-        });
-      } catch (err) {
-        //
+    let delIndex = 0;
+    for (const image of images.add.slice(0, 5)) {
+      await deleteImage(
+        product.images[images.indexesToDelete[delIndex]].public_id
+      );
+      const res = await uploadImage(image);
+      if (res) {
+        product.images[images.indexesToDelete[delIndex]] = {
+          public_id: res.public_id,
+          url: res.url,
+        };
       }
     }
+    delIndex++;
   }
 
   await product.save();
@@ -86,7 +109,9 @@ export const deleteProduct = catchAsyncError<{ id: string }>(
 
 export const getProductDetails = catchAsyncError<{ id: string }>(
   async (req, res, next) => {
-    const product = await Product.findById(req.params.id).populate("owner").populate('reviews')
+    const product = await Product.findById(req.params.id)
+      .populate("owner")
+      .populate("reviews");
 
     if (!product)
       return next(new ErrorHandler("Product with this id doens't exist", 400));
