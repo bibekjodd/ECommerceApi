@@ -82,7 +82,7 @@ export const updateProduct = catchAsyncError<
     let delIndex = 0;
     for (const image of images.add.slice(0, 5)) {
       await deleteImage(
-        product.images[images.indexesToDelete[delIndex]].public_id
+        product.images[images.indexesToDelete[delIndex]]?.public_id
       );
       const res = await uploadImage(image);
       if (res) {
