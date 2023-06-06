@@ -16,6 +16,7 @@ const admin_route_1 = __importDefault(require("./routes/admin.route"));
 const admin_user_route_1 = __importDefault(require("./routes/admin.user.route"));
 const admin_product_route_1 = __importDefault(require("./routes/admin.product.route"));
 const database_1 = __importDefault(require("./config/database"));
+const devConsole_1 = __importDefault(require("./lib/devConsole"));
 // -------- initial config for api --------
 (0, appConfig_1.initialConfig)(app);
 (0, database_1.default)();
@@ -29,5 +30,5 @@ app.use("/api/v1", admin_product_route_1.default);
 app.use(notFound_1.notFound);
 app.use(error_1.error);
 app.listen(process.env.PORT || 5000, () => {
-    console.log(`Server listening at http://localhost:${process.env.PORT || 5000}`.yellow);
+    (0, devConsole_1.default)(`Server listening at http://localhost:${process.env.PORT || 5000}`.yellow);
 });

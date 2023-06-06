@@ -46,6 +46,8 @@ export const initialConfig = (app: Express) => {
           : "Server started but might have some error",
       databaseConnected,
       envLoaded,
+      mongooseConnections: mongoose.connections.length,
+      env: process.env.NODE_ENV,
     });
   });
 
@@ -74,7 +76,7 @@ export const initialConfig = (app: Express) => {
     })
   );
 
-  app.use(express.json({ limit: "0.5mb" }));
+  app.use(express.json({ limit: "5mb" }));
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(

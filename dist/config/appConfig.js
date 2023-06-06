@@ -40,6 +40,8 @@ const initialConfig = (app) => {
                 : "Server started but might have some error",
             databaseConnected,
             envLoaded,
+            mongooseConnections: mongoose_1.default.connections.length,
+            env: process.env.NODE_ENV,
         });
     });
     app.get("/api/status", (req, res) => {
@@ -60,7 +62,7 @@ const initialConfig = (app) => {
         }
         res.status(200).json({ message: "Server Refreshed" });
     }));
-    app.use(express_1.default.json({ limit: "0.5mb" }));
+    app.use(express_1.default.json({ limit: "5mb" }));
     app.use(express_1.default.urlencoded({ extended: true }));
     app.use((0, cookie_parser_1.default)());
     app.use((0, cors_1.default)({

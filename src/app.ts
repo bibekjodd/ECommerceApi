@@ -11,6 +11,7 @@ import adminRouter from "./routes/admin.route";
 import adminUserRouter from "./routes/admin.user.route";
 import adminProductRouter from "./routes/admin.product.route";
 import connectDatabase from "./config/database";
+import devConsole from "./lib/devConsole";
 
 // -------- initial config for api --------
 initialConfig(app);
@@ -27,7 +28,7 @@ app.use("/api/v1", adminProductRouter);
 app.use(notFound);
 app.use(error);
 app.listen(process.env.PORT || 5000, () => {
-  console.log(
+  devConsole(
     `Server listening at http://localhost:${process.env.PORT || 5000}`.yellow
   );
 });

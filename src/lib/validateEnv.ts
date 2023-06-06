@@ -1,5 +1,6 @@
 import { z } from "zod";
 import dotenv from "dotenv";
+import devConsole from "./devConsole";
 
 export type EnvType = z.infer<typeof envVariables>;
 global.envLoaded = false;
@@ -28,7 +29,7 @@ export default function validateEnv() {
     envVariables.parse(process.env);
     global.envLoaded = true;
   } catch (error) {
-    console.log("Env variables are not loaded".red);
+    devConsole("Env variables are not loaded".red);
     global.envLoaded = false;
   }
 }

@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const zod_1 = require("zod");
 const dotenv_1 = __importDefault(require("dotenv"));
+const devConsole_1 = __importDefault(require("./devConsole"));
 global.envLoaded = false;
 const envVariables = zod_1.z.object({
     MONGO_URI: zod_1.z.string().min(1),
@@ -28,7 +29,7 @@ function validateEnv() {
         global.envLoaded = true;
     }
     catch (error) {
-        console.log("Env variables are not loaded".red);
+        (0, devConsole_1.default)("Env variables are not loaded".red);
         global.envLoaded = false;
     }
 }

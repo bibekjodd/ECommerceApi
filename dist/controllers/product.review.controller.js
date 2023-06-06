@@ -51,7 +51,6 @@ exports.createOrUpdateReview = (0, catchAsyncError_1.catchAsyncError)(async (req
         product.reviews.push(review._id.toString());
         product.numOfReviews = product.reviews.length;
         product.ratings = totalRatings / product.numOfReviews;
-        console.log(totalRatings, product.numOfReviews, validRating);
     }
     await product.save();
     await review.save();
