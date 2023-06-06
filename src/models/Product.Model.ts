@@ -81,4 +81,4 @@ export interface IProduct
 const Product = mongoose.model<IProduct>("Product", productSchema);
 export default Product;
 
-export type QueryProduct = ReturnType<typeof Product.find>;
+export type QueryProduct = mongoose.Query<IProduct[], IProduct>;
