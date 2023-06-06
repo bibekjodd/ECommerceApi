@@ -33,28 +33,30 @@ export default class ApiFeatures {
    */
   filter() {
     // --------- filter by price ---------
-    this.query.price = this.query.price || {};
-    let queryString = JSON.stringify(this.query.price);
-    queryString = queryString.replace("gt", "$gt");
-    queryString = queryString.replace("lt", "$lt");
-    this.query.price = JSON.parse(queryString);
-    for (const key of Object.keys(this.query.price)) {
-      // @ts-ignore
-      this.query.price[key] = Number(this.query.price[key]) || 0;
+    if (this.query.price) {
+      let queryString = JSON.stringify(this.query.price);
+      queryString = queryString.replace("gt", "$gt");
+      queryString = queryString.replace("lt", "$lt");
+      this.query.price = JSON.parse(queryString);
+      for (const key of Object.keys(this.query.price)) {
+        // @ts-ignore
+        this.query.price[key] = Number(this.query.price[key]) || 0;
+      }
+      this.result = this.result.find({ price: this.query.price });
     }
-    this.result = this.result.find({ price: this.query.price });
 
     // --------- filter by ratings ---------
-    this.query.ratings = this.query.ratings || {};
-    queryString = JSON.stringify(this.query.ratings);
-    queryString = queryString.replace("gt", "$gt");
-    queryString = queryString.replace("lt", "$lt");
-    this.query.ratings = JSON.parse(queryString);
-    for (const key of Object.keys(this.query.ratings)) {
-      // @ts-ignore
-      this.query.ratings[key] = Number(this.query.ratings[key]) || 0;
+    if (this.query.ratings) {
+      let queryString = JSON.stringify(this.query.ratings);
+      queryString = queryString.replace("gt", "$gt");
+      queryString = queryString.replace("lt", "$lt");
+      this.query.ratings = JSON.parse(queryString);
+      for (const key of Object.keys(this.query.ratings)) {
+        // @ts-ignore
+        this.query.ratings[key] = Number(this.query.ratings[key]) || 0;
+      }
+      this.result = this.result.find({ ratings: this.query.ratings });
     }
-    this.result = this.result.find({ ratings: this.query.ratings });
 
     return this;
   }
