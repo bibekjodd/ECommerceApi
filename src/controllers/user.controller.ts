@@ -1,7 +1,6 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import User from "../models/User.Model";
 import { ErrorHandler } from "../lib/errorHandler";
-import cloudinary from "cloudinary";
 import sendToken, { cookieOptions } from "../lib/sendToken";
 import sendEmail from "../lib/sendEmail";
 import crypto from "crypto";

@@ -106,7 +106,7 @@ exports.forgotPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res,
     const token = user.getResetPasswordToken();
     await user.save();
     const subject = "ECommerce Api Password Reset";
-    const link = `${process.env.FRONTEND_URL}/resetpassword/${token}`;
+    const link = `${req.get('origin')}/password/reset/${token}`;
     const message = `Click on this link to reset password. <br>
   <a href=${link}>${link}</a>
   `;
