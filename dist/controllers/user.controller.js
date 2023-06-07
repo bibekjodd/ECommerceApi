@@ -106,12 +106,12 @@ exports.forgotPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res,
     const token = user.getResetPasswordToken();
     await user.save();
     const subject = "ECommerce Api Password Reset";
-    const link = `${req.get('origin')}/password/reset/${token}`;
+    const link = `${req.get("origin")}/password/reset/${token}`;
     const message = `Click on this link to reset password. <br>
   <a href=${link}>${link}</a>
   `;
     await (0, sendEmail_1.default)({ mail: email, text: message, subject });
-    res.status(200).json({ message: "Password Recovery sent to mail" });
+    res.status(200).json({ message: "Password Recovery sent to mail", token });
 });
 exports.resetPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     const token = req.params.token;
