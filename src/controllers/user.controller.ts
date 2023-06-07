@@ -175,11 +175,13 @@ export const updateProfile = catchAsyncError<
     name?: string;
     email?: string;
     avatar?: string;
+    password?: string;
   }
 >(async (req, res) => {
-  const { name, email, avatar } = req.body;
+  const { name, email, avatar, password } = req.body;
   if (name) req.user.name = name;
   if (email) req.user.email = email;
+  if (password) req.user.password = password;
 
   let uploadFailed = false;
   if (avatar) {
