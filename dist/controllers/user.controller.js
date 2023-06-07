@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -30,7 +7,7 @@ exports.updateProfile = exports.updatePassword = exports.resetPassword = exports
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const User_Model_1 = __importDefault(require("../models/User.Model"));
 const errorHandler_1 = require("../lib/errorHandler");
-const sendToken_1 = __importStar(require("../lib/sendToken"));
+const sendToken_1 = __importDefault(require("../lib/sendToken"));
 const sendEmail_1 = __importDefault(require("../lib/sendEmail"));
 const crypto_1 = __importDefault(require("crypto"));
 const cloudinary_1 = require("../lib/cloudinary");
@@ -56,7 +33,7 @@ exports.registerUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, n
         }
         await user.save();
     }
-    (0, sendToken_1.default)(user, res, 201);
+    (0, sendToken_1.default)(res, user, 201);
 });
 /**
  * Login api. Sends the token to user
@@ -71,7 +48,7 @@ exports.loginUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next
     const isMatch = await user.comparePassword(password || "");
     if (!isMatch)
         return next(new errorHandler_1.ErrorHandler("Invalid user credintials", 400));
-    (0, sendToken_1.default)(user, res, 200);
+    (0, sendToken_1.default)(res, user, 200);
 });
 /**
  * Get My Profile Api
@@ -83,12 +60,14 @@ exports.getUserDetails = (0, catchAsyncError_1.catchAsyncError)(async (req, res)
  * logout api
  */
 exports.logout = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
-    const { maxAge, ...logoutOptions } = sendToken_1.cookieOptions;
-    maxAge;
-    return res
-        .status(200)
-        .clearCookie("token", logoutOptions)
-        .json({ message: "Logged out successfully" });
+    // return res
+    //   .status(200)
+    //   .cookie("token", "nothing", {
+    //     ...cookieOptions,
+    //     expires: new Date(Date.now()),
+    //   })
+    //   .json({ message: "Logged out successfully" });
+    (0, sendToken_1.default)(res, undefined, 200, true);
 });
 exports.deleteProfile = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
     await req.user.deleteOne();
@@ -129,7 +108,7 @@ exports.resetPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res, 
     user.resetPasswordExpire = undefined;
     user.resetPasswordToken = undefined;
     await user.save();
-    (0, sendToken_1.default)(user, res, 200);
+    (0, sendToken_1.default)(res, user, 200);
 });
 exports.updatePassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     const { oldPassword, newPassword } = req.body;

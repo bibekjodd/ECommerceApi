@@ -1,7 +1,7 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import User from "../models/User.Model";
 import { ErrorHandler } from "../lib/errorHandler";
-import sendToken, { cookieOptions } from "../lib/sendToken";
+import sendToken from "../lib/sendToken";
 import sendEmail from "../lib/sendEmail";
 import crypto from "crypto";
 import { uploadImage } from "../lib/cloudinary";
@@ -39,7 +39,7 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
       await user.save();
     }
 
-    sendToken(user, res, 201);
+    sendToken(res, user, 201);
   }
 );
 
@@ -64,7 +64,7 @@ export const loginUser = catchAsyncError<unknown, unknown, LoginBody>(
     if (!isMatch)
       return next(new ErrorHandler("Invalid user credintials", 400));
 
-    sendToken(user, res, 200);
+    sendToken(res, user, 200);
   }
 );
 
@@ -79,13 +79,14 @@ export const getUserDetails = catchAsyncError(async (req, res) => {
  * logout api
  */
 export const logout = catchAsyncError(async (req, res) => {
-  const { maxAge, ...logoutOptions } = cookieOptions;
-  maxAge;
-
-  return res
-    .status(200)
-    .clearCookie("token", logoutOptions)
-    .json({ message: "Logged out successfully" });
+  // return res
+  //   .status(200)
+  //   .cookie("token", "nothing", {
+  //     ...cookieOptions,
+  //     expires: new Date(Date.now()),
+  //   })
+  //   .json({ message: "Logged out successfully" });
+  sendToken(res, undefined, 200, true);
 });
 
 export const deleteProfile = catchAsyncError(async (req, res) => {
@@ -146,7 +147,7 @@ export const resetPassword = catchAsyncError<
   user.resetPasswordToken = undefined;
   await user.save();
 
-  sendToken(user, res, 200);
+  sendToken(res, user, 200);
 });
 
 export const updatePassword = catchAsyncError<
