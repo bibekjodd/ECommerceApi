@@ -66,18 +66,17 @@ export default class ApiFeatures {
    */
   paginate() {
     this.query.page = Number(this.query.page) || 1;
-    if (this.query.pageSize < 1) {
-      this.query.pageSize = 1;
-    }
-    if (this.query.page < 1) {
-      this.query.page = 1;
-    }
+
     this.query.pageSize = Number(this.query.pageSize) || 20;
+
 
     const skip = (this.query.page - 1) * this.query.pageSize;
     const limit = this.query.pageSize;
 
-    this.result = this.result.skip(skip).limit(limit);
+    this.result = this.result
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: "desc" });
 
     return this;
   }
