@@ -58,6 +58,15 @@ export default class ApiFeatures {
       this.result = this.result.find({ ratings: this.query.ratings });
     }
 
+    if (this.query.offer === "hotoffers" || this.query.offer === "sales") {
+      this.result = this.result.find({
+        discountRate: {
+          $gte: this.query.offer === "hotoffers" ? 20 : 5,
+          $lt: this.query.offer === "hotoffers" ? 101 : 20,
+        },
+      });
+    }
+
     return this;
   }
 
@@ -68,7 +77,6 @@ export default class ApiFeatures {
     this.query.page = Number(this.query.page) || 1;
 
     this.query.pageSize = Number(this.query.pageSize) || 20;
-
 
     const skip = (this.query.page - 1) * this.query.pageSize;
     const limit = this.query.pageSize;

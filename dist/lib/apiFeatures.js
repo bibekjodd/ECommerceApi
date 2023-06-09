@@ -53,6 +53,14 @@ class ApiFeatures {
             }
             this.result = this.result.find({ ratings: this.query.ratings });
         }
+        if (this.query.offer === "hotoffers" || this.query.offer === "sales") {
+            this.result = this.result.find({
+                discountRate: {
+                    $gte: this.query.offer === "hotoffers" ? 20 : 5,
+                    $lt: this.query.offer === "hotoffers" ? 101 : 20,
+                },
+            });
+        }
         return this;
     }
     /**
