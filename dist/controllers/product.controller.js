@@ -8,7 +8,7 @@ const apiFeatures_1 = __importDefault(require("../lib/apiFeatures"));
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const Product_Model_1 = __importDefault(require("../models/Product.Model"));
 exports.getAllProducts = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
-    const apiFeature = new apiFeatures_1.default(Product_Model_1.default.find(), req.query);
+    const apiFeature = new apiFeatures_1.default(Product_Model_1.default.find(), { ...req.query });
     const invalidOwner = apiFeature.invalidOwner();
     if (invalidOwner) {
         return res.status(200).json({

@@ -28,7 +28,8 @@ export interface Query {
 
 export const getAllProducts = catchAsyncError<unknown, unknown, unknown, Query>(
   async (req, res) => {
-    const apiFeature = new ApiFeatures(Product.find(), req.query);
+    const apiFeature = new ApiFeatures(Product.find(), { ...req.query });
+
     const invalidOwner = apiFeature.invalidOwner();
 
     if (invalidOwner) {

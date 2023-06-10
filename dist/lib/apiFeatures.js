@@ -39,10 +39,8 @@ class ApiFeatures {
         // --------- filter by price ---------
         if (this.query.price) {
             let queryString = JSON.stringify(this.query.price);
-            if (!queryString.includes("$")) {
-                queryString = queryString.replace("gt", "$gt");
-                queryString = queryString.replace("lt", "$lt");
-            }
+            queryString = queryString.replace("gt", "$gt");
+            queryString = queryString.replace("lt", "$lt");
             this.query.price = JSON.parse(queryString);
             for (const key of Object.keys(this.query.price)) {
                 // @ts-ignore
