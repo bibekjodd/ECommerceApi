@@ -20,14 +20,37 @@ export interface Query {
   pageSize: number;
   category?: string;
   offer?: "hotoffers" | "sales";
+  orderby?: string;
+  brand?: string;
+  featured?: boolean;
+  owner?: string;
 }
 
 export const getAllProducts = catchAsyncError<unknown, unknown, unknown, Query>(
   async (req, res) => {
-    const ApiFeature = new ApiFeatures(Product.find(), req.query);
-    ApiFeature.search().filter().paginate();
-    const products = await ApiFeature.result;
+    const apiFeature = new ApiFeatures(Product.find(), req.query);
+    const invalidOwner = apiFeature.invalidOwner();
 
-    return res.status(200).json({ total: products.length, products });
+    if (invalidOwner) {
+      return res.status(200).json({
+        totalResults: 0,
+        totalProducts: 0,
+        products: [],
+      });
+    }
+
+    apiFeature.search().filter().order().paginate();
+    const products = await apiFeature.result;
+
+    const totalProducts = await new ApiFeatures(Product.find(), req.query)
+      .search()
+      .filter()
+      .countTotalProducts();
+
+    return res.status(200).json({
+      totalResults: products.length,
+      total: totalProducts,
+      products,
+    });
   }
 );

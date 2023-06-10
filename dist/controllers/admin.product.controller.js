@@ -16,6 +16,7 @@ exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
         ...productDetails,
         owner: req.user._id,
     });
+    product.features = product.features.slice(0, 10);
     product.tags = product.tags.slice(0, 5);
     switch (product.category) {
         case "mobile":
@@ -63,7 +64,7 @@ exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, 
     if (images) {
         let delIndex = 0;
         for (const image of images.add.slice(0, 5)) {
-            await (0, cloudinary_1.deleteImage)(product.images[images.indexesToDelete[delIndex]]?.public_id);
+            await (0, cloudinary_1.deleteImage)(product.images[images.indexesToDelete[delIndex]]?.public_id || "");
             const res = await (0, cloudinary_1.uploadImage)(image);
             if (res) {
                 product.images[images.indexesToDelete[delIndex]] = {

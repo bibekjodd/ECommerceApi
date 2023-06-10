@@ -10,6 +10,8 @@ export const productSchema = z.object({
   tags: z.array(z.string()).optional(),
   ram: z.number().optional(),
   sizes: z.array(z.string()).optional(),
+  brand:z.string().optional(),
+
   colors: z
     .array(
       z.object({

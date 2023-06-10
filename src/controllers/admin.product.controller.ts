@@ -21,6 +21,7 @@ export const createProduct = catchAsyncError<
     owner: req.user._id,
   });
 
+  product.features = product.features.slice(0, 10);
   product.tags = product.tags.slice(0, 5);
   switch (product.category) {
     case "mobile":
@@ -82,7 +83,7 @@ export const updateProduct = catchAsyncError<
     let delIndex = 0;
     for (const image of images.add.slice(0, 5)) {
       await deleteImage(
-        product.images[images.indexesToDelete[delIndex]]?.public_id
+        product.images[images.indexesToDelete[delIndex]]?.public_id || ""
       );
       const res = await uploadImage(image);
       if (res) {

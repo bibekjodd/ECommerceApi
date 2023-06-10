@@ -13,6 +13,7 @@ exports.productSchema = zod_1.z.object({
     tags: zod_1.z.array(zod_1.z.string()).optional(),
     ram: zod_1.z.number().optional(),
     sizes: zod_1.z.array(zod_1.z.string()).optional(),
+    brand: zod_1.z.string().optional(),
     colors: zod_1.z
         .array(zod_1.z.object({
         code: zod_1.z.string().optional(),

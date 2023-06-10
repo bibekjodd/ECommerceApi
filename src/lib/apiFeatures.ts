@@ -1,7 +1,10 @@
+import mongoose, { FilterQuery } from "mongoose";
 import { Query } from "../controllers/product.controller";
-import { QueryProduct } from "../models/Product.Model";
+import { IProduct, QueryProduct } from "../models/Product.Model";
+type ProductFilterQuery = FilterQuery<IProduct>;
 
 export default class ApiFeatures {
+  totalProducts = 0;
   constructor(public result: QueryProduct, public query: Query) {
     this.result = result;
     this.query = query;
@@ -11,21 +14,24 @@ export default class ApiFeatures {
    * find product that matches `title` and `category`
    */
   search() {
-    this.result = this.result.find({
+    const filterQuery: ProductFilterQuery = {
       title: {
         $regex: this.query.title || "",
         $options: "i",
       },
-    });
+      category: this.query.category || undefined,
+      brand: this.query.brand || undefined,
+      featured: this.query.featured || undefined,
+      owner: this.query.owner || undefined,
+    };
 
-    const category = this.query.category;
-    if (category) {
-      this.result = this.result.find({
-        category,
-      });
-    }
+    this.result = this.result.find(JSON.parse(JSON.stringify(filterQuery)));
 
     return this;
+  }
+
+  invalidOwner() {
+    return this.query.owner && !mongoose.isValidObjectId(this.query.owner);
   }
 
   /**
@@ -35,8 +41,10 @@ export default class ApiFeatures {
     // --------- filter by price ---------
     if (this.query.price) {
       let queryString = JSON.stringify(this.query.price);
-      queryString = queryString.replace("gt", "$gt");
-      queryString = queryString.replace("lt", "$lt");
+      if (!queryString.includes("$")) {
+        queryString = queryString.replace("gt", "$gt");
+        queryString = queryString.replace("lt", "$lt");
+      }
       this.query.price = JSON.parse(queryString);
       for (const key of Object.keys(this.query.price)) {
         // @ts-ignore
@@ -70,6 +78,22 @@ export default class ApiFeatures {
     return this;
   }
 
+  order() {
+    if (!this.query.orderby) return this;
+
+    const [property, method] = this.query.orderby.split("-");
+    if (!property) return this;
+    const validProperties = ["price", "createdAt", "ratings"];
+
+    if (validProperties.includes(property)) {
+      this.result = this.result.sort({
+        [property]: method === "asc" ? "asc" : "desc",
+      });
+    }
+
+    return this;
+  }
+
   /**
    * paginate the result by `page number` and `page size`
    */
@@ -81,11 +105,12 @@ export default class ApiFeatures {
     const skip = (this.query.page - 1) * this.query.pageSize;
     const limit = this.query.pageSize;
 
-    this.result = this.result
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: "desc" });
+    this.result = this.result.skip(skip).limit(limit).populate("owner");
 
     return this;
+  }
+
+  async countTotalProducts() {
+    return this.result.countDocuments();
   }
 }
