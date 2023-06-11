@@ -23,7 +23,11 @@ class ApiFeatures {
             },
             category: this.query.category || undefined,
             brand: this.query.brand || undefined,
-            featured: this.query.featured || undefined,
+            featured: this.query.featured === "true"
+                ? true
+                : this.query.featured === "false"
+                    ? false
+                    : undefined,
             owner: this.query.owner || undefined,
         };
         this.result = this.result.find(JSON.parse(JSON.stringify(filterQuery)));

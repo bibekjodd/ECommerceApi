@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const auth_1 = require("../middlewares/auth");
 const admin_product_controller_1 = require("../controllers/admin.product.controller");
+const product_controller_1 = require("../controllers/product.controller");
 const router = express_1.default.Router();
 // ---------------------- Admin Product Routes ----------------------
 router
@@ -15,5 +16,5 @@ router
     .route("/admin/product/:id")
     .put(auth_1.isAuthenticatedUser, auth_1.isAdmin, admin_product_controller_1.updateProduct)
     .delete(auth_1.isAuthenticatedUser, auth_1.isAdmin, admin_product_controller_1.deleteProduct)
-    .get(auth_1.isAuthenticatedUser, auth_1.isAdmin, admin_product_controller_1.getProductDetails);
+    .get(auth_1.isAuthenticatedUser, auth_1.isAdmin, product_controller_1.getProductDetails);
 exports.default = router;

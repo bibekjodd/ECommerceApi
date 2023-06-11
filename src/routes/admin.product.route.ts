@@ -3,9 +3,9 @@ import { isAuthenticatedUser, isAdmin } from "../middlewares/auth";
 import {
   createProduct,
   deleteProduct,
-  getProductDetails,
   updateProduct,
 } from "../controllers/admin.product.controller";
+import { getProductDetails } from "../controllers/product.controller";
 
 const router = express.Router();
 

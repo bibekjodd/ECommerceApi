@@ -107,16 +107,3 @@ export const deleteProduct = catchAsyncError<{ id: string }>(
     res.status(200).json({ message: "Product deleted successfully" });
   }
 );
-
-export const getProductDetails = catchAsyncError<{ id: string }>(
-  async (req, res, next) => {
-    const product = await Product.findById(req.params.id)
-      .populate("owner")
-      .populate("reviews");
-
-    if (!product)
-      return next(new ErrorHandler("Product with this id doens't exist", 400));
-
-    res.status(200).json({ product });
-  }
-);

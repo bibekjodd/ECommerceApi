@@ -1,6 +1,6 @@
 import { ErrorRequestHandler } from "express";
 import { ErrorHandler } from "../lib/errorHandler";
-import { z } from "zod";
+import mongoose from "mongoose";
 
 export const error: ErrorRequestHandler = (err, req, res, next) => {
   let message = "Internal Server Error";
@@ -9,6 +9,13 @@ export const error: ErrorRequestHandler = (err, req, res, next) => {
   if (err instanceof ErrorHandler) {
     message = err.message;
     statusCode = err.statusCode || 500;
+  }
+
+  if (err instanceof mongoose.MongooseError) {
+    if (err.name === "CastError") {
+      message = "Invalid Id Provided";
+      statusCode = 400;
+    }
   }
 
   res.status(statusCode).json({

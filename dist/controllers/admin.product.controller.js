@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductDetails = exports.deleteProduct = exports.updateProduct = exports.createProduct = void 0;
+exports.deleteProduct = exports.updateProduct = exports.createProduct = void 0;
 const validateProduct_1 = require("../lib/validateProduct");
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const Product_Model_1 = __importDefault(require("../models/Product.Model"));
@@ -81,12 +81,4 @@ exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, 
 exports.deleteProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
     await Product_Model_1.default.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Product deleted successfully" });
-});
-exports.getProductDetails = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
-    const product = await Product_Model_1.default.findById(req.params.id)
-        .populate("owner")
-        .populate("reviews");
-    if (!product)
-        return next(new errorHandler_1.ErrorHandler("Product with this id doens't exist", 400));
-    res.status(200).json({ product });
 });

@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import ApiFeatures from "../lib/apiFeatures";
+import { ErrorHandler } from "../lib/errorHandler";
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import Product from "../models/Product.Model";
 
@@ -22,7 +24,7 @@ export interface Query {
   offer?: "hotoffers" | "sales";
   orderby?: string;
   brand?: string;
-  featured?: boolean;
+  featured?: string;
   owner?: string;
 }
 
@@ -35,7 +37,7 @@ export const getAllProducts = catchAsyncError<unknown, unknown, unknown, Query>(
     if (invalidOwner) {
       return res.status(200).json({
         totalResults: 0,
-        totalProducts: 0,
+        total: 0,
         products: [],
       });
     }
@@ -53,5 +55,21 @@ export const getAllProducts = catchAsyncError<unknown, unknown, unknown, Query>(
       total: totalProducts,
       products,
     });
+  }
+);
+
+export const getProductDetails = catchAsyncError<{ id: string }>(
+  async (req, res, next) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid Product Id" });
+    }
+    const product = await Product.findById(req.params.id)
+      .populate("owner")
+      .populate("reviews");
+
+    if (!product)
+      return next(new ErrorHandler("Product with this id doens't exist", 400));
+
+    res.status(200).json({ product });
   }
 );
