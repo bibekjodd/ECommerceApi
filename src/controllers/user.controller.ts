@@ -81,10 +81,7 @@ export const getUserDetails = catchAsyncError(async (req, res) => {
 export const logout = catchAsyncError(async (req, res) => {
   return res
     .status(200)
-    .cookie("token", "nothing", {
-      ...cookieOptions,
-      maxAge: Date.now(),
-    })
+    .cookie("token", "token", cookieOptions)
     .json({ message: "Logged out successfully" });
 });
 

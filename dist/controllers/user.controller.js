@@ -85,10 +85,7 @@ exports.getUserDetails = (0, catchAsyncError_1.catchAsyncError)(async (req, res)
 exports.logout = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
     return res
         .status(200)
-        .cookie("token", "nothing", {
-        ...sendToken_1.cookieOptions,
-        maxAge: Date.now(),
-    })
+        .cookie("token", "token", sendToken_1.cookieOptions)
         .json({ message: "Logged out successfully" });
 });
 exports.deleteProfile = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
