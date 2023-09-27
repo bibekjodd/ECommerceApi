@@ -1,5 +1,5 @@
 import { EnvType } from "./src/lib/validateEnv";
-import { IUser } from "./src/models/User.Model";
+import { TUser } from "./src/models/user.model";
 export {};
 declare global {
   namespace NodeJS {
@@ -10,7 +10,7 @@ declare global {
   }
   namespace Express {
     interface Request {
-      user: IUser;
+      user: TUser;
     }
   }
   var envLoaded: boolean;

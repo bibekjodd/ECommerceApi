@@ -33,35 +33,16 @@ const initialConfig = (app) => {
         }
         next();
     }));
-    app.get("/", (req, res) => {
-        res.json({
-            message: envLoaded && databaseConnected
-                ? "Server is running fine"
-                : "Server started but might have some error",
-            databaseConnected,
-            envLoaded,
-            mongooseConnections: mongoose_1.default.connections.length,
-            env: process.env.NODE_ENV,
-        });
-    });
     app.get("/api/status", (req, res) => {
         res.status(200).json({
             message: "Server is running",
             envLoaded: global.envLoaded,
             databaseConnected: global.databaseConnected,
             NODE_ENV: process.env.NODE_ENV,
-            mongooseConnections: mongoose_1.default.connections.length,
+            databaseConnections: mongoose_1.default.connections.length,
             FRONTEND_URL: process.env.FRONTEND_URL?.split(" ") || [],
         });
     });
-    app.get("/refresh", (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
-        if (mongoose_1.default.connections.length < 1 ||
-            mongoose_1.default.ConnectionStates.disconnected ||
-            mongoose_1.default.ConnectionStates.uninitialized) {
-            await (0, database_1.default)();
-        }
-        res.status(200).json({ message: "Server Refreshed" });
-    }));
     app.use(express_1.default.json({ limit: "5mb" }));
     app.use(express_1.default.urlencoded({ extended: true }));
     app.use((0, cookie_parser_1.default)());

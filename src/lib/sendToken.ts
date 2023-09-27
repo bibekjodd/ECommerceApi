@@ -1,5 +1,5 @@
 import { CookieOptions, Response } from "express";
-import { IUser } from "../models/User.Model";
+import { TUser } from "../models/user.model";
 
 export const cookieOptions: CookieOptions = {
   maxAge: Date.now() + 30 * 24 * 60 * 60 * 1000,
@@ -12,7 +12,7 @@ export const cookieOptions: CookieOptions = {
  * sends Cookie Token to the user that expires in 30 days
  */
 const sendToken = (
-  user: Partial<IUser>,
+  user: Partial<TUser>,
   res: Response,
   statusCode?: number
 ) => {

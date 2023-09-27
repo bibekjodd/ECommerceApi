@@ -1,5 +1,5 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError";
-import User from "../models/User.Model";
+import User from "../models/user.model";
 import { ErrorHandler } from "../lib/errorHandler";
 import sendToken, { cookieOptions } from "../lib/sendToken";
 import sendEmail from "../lib/sendEmail";

@@ -1,6 +1,6 @@
 import mongoose, { FilterQuery } from "mongoose";
 import { Query } from "../controllers/product.controller";
-import { IProduct, QueryProduct } from "../models/Product.Model";
+import { IProduct, QueryProduct } from "../models/product.model";
 type ProductFilterQuery = FilterQuery<IProduct>;
 
 export default class ApiFeatures {

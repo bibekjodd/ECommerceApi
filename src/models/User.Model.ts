@@ -1,10 +1,37 @@
-import mongoose, { InferSchemaType } from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-const userSchema = new mongoose.Schema(
+interface IUser {
+  _id: mongoose.Schema.Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  avatar?: {
+    public_id?: string;
+    url?: string;
+  };
+  emailVerified: boolean;
+  role: "user" | "admin";
+  resetPasswordToken?: string;
+  resetPasswordExpire?: number;
+  createdAt: NativeDate;
+  updatedAt: NativeDate;
+}
+
+type UserMethods = {
+  comparePassword: (password: string) => Promise<boolean>;
+  generateToken: () => string;
+  getResetPasswordToken: () => string;
+};
+
+const userSchema = new mongoose.Schema<
+  IUser,
+  mongoose.Model<IUser>,
+  UserMethods
+>(
   {
     name: {
       type: String,
@@ -17,9 +44,9 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is mandatory field"],
-      minLength: [10, "Email must be at least 4 characters"],
       maxLength: [30, "Email should not exceed 30 characters"],
       validate: [validator.isEmail, "Must provide valid email"],
+      trim: true,
     },
 
     password: {
@@ -78,13 +105,7 @@ userSchema.methods.getResetPasswordToken = function () {
   return token;
 };
 
-export interface IUser
-  extends mongoose.Document,
-    InferSchemaType<typeof userSchema> {
-  comparePassword: (password: string) => Promise<boolean>;
-  generateToken: () => string;
-  getResetPasswordToken: () => string;
-}
-
-const User = mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;
+
+export type TUser = IUser & UserMethods & mongoose.Document;

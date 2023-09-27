@@ -38,43 +38,16 @@ export const initialConfig = (app: Express) => {
     })
   );
 
-  app.get("/", (req, res) => {
-    res.json({
-      message:
-        envLoaded && databaseConnected
-          ? "Server is running fine"
-          : "Server started but might have some error",
-      databaseConnected,
-      envLoaded,
-      mongooseConnections: mongoose.connections.length,
-      env: process.env.NODE_ENV,
-    });
-  });
-
   app.get("/api/status", (req, res) => {
     res.status(200).json({
       message: "Server is running",
       envLoaded: global.envLoaded,
       databaseConnected: global.databaseConnected,
       NODE_ENV: process.env.NODE_ENV,
-      mongooseConnections: mongoose.connections.length,
+      databaseConnections: mongoose.connections.length,
       FRONTEND_URL: process.env.FRONTEND_URL?.split(" ") || [],
     });
   });
-
-  app.get(
-    "/refresh",
-    catchAsyncError(async (req, res) => {
-      if (
-        mongoose.connections.length < 1 ||
-        mongoose.ConnectionStates.disconnected ||
-        mongoose.ConnectionStates.uninitialized
-      ) {
-        await connectDatabase();
-      }
-      res.status(200).json({ message: "Server Refreshed" });
-    })
-  );
 
   app.use(express.json({ limit: "5mb" }));
   app.use(express.urlencoded({ extended: true }));

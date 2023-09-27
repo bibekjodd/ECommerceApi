@@ -6,9 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "devStart": "tsc && npm run start",
+    "lint": "eslint ./src",
     "dev": "nodemon --exec ts-node --transpile-only src/app.ts",
     "start": "node dist/app.js",
-    "build": "rimraf dist && tsc"
+    "build": "npm run lint && rimraf dist && tsc"
   },
   "keywords": [],
   "author": "",

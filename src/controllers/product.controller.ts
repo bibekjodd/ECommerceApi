@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import ApiFeatures from "../lib/apiFeatures";
 import { ErrorHandler } from "../lib/errorHandler";
 import { catchAsyncError } from "../middlewares/catchAsyncError";
-import Product from "../models/Product.Model";
+import Product from "../models/product.model";
 
 export interface Query {
   title?: string;

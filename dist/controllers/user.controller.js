@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateProfile = exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.deleteProfile = exports.logout = exports.getUserDetails = exports.loginUser = exports.registerUser = void 0;
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
-const User_Model_1 = __importDefault(require("../models/User.Model"));
+const user_model_1 = __importDefault(require("../models/user.model"));
 const errorHandler_1 = require("../lib/errorHandler");
 const sendToken_1 = __importStar(require("../lib/sendToken"));
 const sendEmail_1 = __importDefault(require("../lib/sendEmail"));
@@ -42,10 +42,10 @@ exports.registerUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, n
     const { name, email, password, avatar } = req.body;
     if (!name || !email || !password)
         return next(new errorHandler_1.ErrorHandler("Please enter required fields", 400));
-    const userExists = await User_Model_1.default.findOne({ email });
+    const userExists = await user_model_1.default.findOne({ email });
     if (userExists)
         return next(new errorHandler_1.ErrorHandler("User with same email already exists", 400));
-    const user = await User_Model_1.default.create({ name, email, password });
+    const user = await user_model_1.default.create({ name, email, password });
     if (avatar) {
         const res = await (0, cloudinary_1.uploadImage)(avatar);
         if (res) {
@@ -65,7 +65,7 @@ exports.loginUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next
     const { email, password } = req.body;
     if (!email || !password)
         return next(new errorHandler_1.ErrorHandler("Please enter required credintials", 400));
-    const user = await User_Model_1.default.findOne({ email }).select("+password");
+    const user = await user_model_1.default.findOne({ email }).select("+password");
     if (!user)
         return next(new errorHandler_1.ErrorHandler("Invalid user credintials", 400));
     const isMatch = await user.comparePassword(password || "");
@@ -98,7 +98,7 @@ exports.forgotPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res,
     const { email } = req.body;
     if (!email)
         return next(new errorHandler_1.ErrorHandler("Please provide your email", 400));
-    const user = await User_Model_1.default.findOne({ email });
+    const user = await user_model_1.default.findOne({ email });
     if (!user)
         return next(new errorHandler_1.ErrorHandler("User with this email doesn't exist", 400));
     const token = user.getResetPasswordToken();
@@ -114,7 +114,7 @@ exports.forgotPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res,
 exports.resetPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     const token = req.params.token;
     const resetToken = crypto_1.default.createHash("sha256").update(token).digest("hex");
-    const user = await User_Model_1.default.findOne({
+    const user = await user_model_1.default.findOne({
         resetPasswordToken: resetToken,
         resetPasswordExpire: { $gt: Date.now() },
     });

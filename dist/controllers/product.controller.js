@@ -8,9 +8,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const apiFeatures_1 = __importDefault(require("../lib/apiFeatures"));
 const errorHandler_1 = require("../lib/errorHandler");
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
-const Product_Model_1 = __importDefault(require("../models/Product.Model"));
+const product_model_1 = __importDefault(require("../models/product.model"));
 exports.getAllProducts = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
-    const apiFeature = new apiFeatures_1.default(Product_Model_1.default.find(), { ...req.query });
+    const apiFeature = new apiFeatures_1.default(product_model_1.default.find(), { ...req.query });
     const invalidOwner = apiFeature.invalidOwner();
     if (invalidOwner) {
         return res.status(200).json({
@@ -21,7 +21,7 @@ exports.getAllProducts = (0, catchAsyncError_1.catchAsyncError)(async (req, res)
     }
     apiFeature.search().filter().order().paginate();
     const products = await apiFeature.result;
-    const totalProducts = await new apiFeatures_1.default(Product_Model_1.default.find(), req.query)
+    const totalProducts = await new apiFeatures_1.default(product_model_1.default.find(), req.query)
         .search()
         .filter()
         .countTotalProducts();
@@ -35,7 +35,7 @@ exports.getProductDetails = (0, catchAsyncError_1.catchAsyncError)(async (req, r
     if (!mongoose_1.default.isValidObjectId(req.params.id)) {
         return res.status(400).json({ message: "Invalid Product Id" });
     }
-    const product = await Product_Model_1.default.findById(req.params.id)
+    const product = await product_model_1.default.findById(req.params.id)
         .populate("owner")
         .populate("reviews");
     if (!product)

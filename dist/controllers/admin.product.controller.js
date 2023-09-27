@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProduct = exports.updateProduct = exports.createProduct = void 0;
 const validateProduct_1 = require("../lib/validateProduct");
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
-const Product_Model_1 = __importDefault(require("../models/Product.Model"));
+const product_model_1 = __importDefault(require("../models/product.model"));
 const errorHandler_1 = require("../lib/errorHandler");
 const cloudinary_1 = require("../lib/cloudinary");
 exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
     (0, validateProduct_1.validateProduct)(req.body);
     const { images, ...productDetails } = req.body;
-    let product = new Product_Model_1.default({
+    let product = new product_model_1.default({
         ...productDetails,
         owner: req.user._id,
     });
@@ -52,7 +52,7 @@ exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
         .json({ product, message: "Product created successfully" });
 });
 exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
-    const product = await Product_Model_1.default.findById(req.params.id);
+    const product = await product_model_1.default.findById(req.params.id);
     if (!product)
         return next(new errorHandler_1.ErrorHandler("Product with this id doesn't exist", 400));
     (0, validateProduct_1.validateUpdateProduct)(req.body);
@@ -79,6 +79,6 @@ exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, 
     res.status(200).json({ message: "Product updated successfully" });
 });
 exports.deleteProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
-    await Product_Model_1.default.findByIdAndDelete(req.params.id);
+    await product_model_1.default.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Product deleted successfully" });
 });

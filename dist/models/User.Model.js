@@ -19,9 +19,9 @@ const userSchema = new mongoose_1.default.Schema({
     email: {
         type: String,
         required: [true, "Email is mandatory field"],
-        minLength: [10, "Email must be at least 4 characters"],
         maxLength: [30, "Email should not exceed 30 characters"],
         validate: [validator_1.default.isEmail, "Must provide valid email"],
+        trim: true,
     },
     password: {
         type: String,

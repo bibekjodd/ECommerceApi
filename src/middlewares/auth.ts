@@ -1,4 +1,4 @@
-import User from "../models/User.Model";
+import User from "../models/user.model";
 import { ErrorHandler } from "../lib/errorHandler";
 import { catchAsyncError } from "./catchAsyncError";
 import jwt from "jsonwebtoken";

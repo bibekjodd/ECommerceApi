@@ -1,7 +1,7 @@
 import { ErrorHandler } from "../lib/errorHandler";
 import { catchAsyncError } from "../middlewares/catchAsyncError";
-import Product from "../models/Product.Model";
-import Review from "../models/Review.Model";
+import Product from "../models/product.model";
+import Review from "../models/review.model";
 
 export const createOrUpdateReview = catchAsyncError<
   unknown,

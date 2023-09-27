@@ -1,6 +1,6 @@
 import { validateProduct, validateUpdateProduct } from "../lib/validateProduct";
 import { catchAsyncError } from "../middlewares/catchAsyncError";
-import Product from "../models/Product.Model";
+import Product from "../models/product.model";
 import { ErrorHandler } from "../lib/errorHandler";
 import { deleteImage, uploadImage } from "../lib/cloudinary";
 import {
