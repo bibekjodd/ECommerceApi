@@ -25,7 +25,7 @@ const reviewSchema = new mongoose_1.default.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "Product",
     },
-});
+}, { timestamps: true });
 reviewSchema.pre("save", function (next) {
     if (this.rating <= 1)
         this.rating = 1;

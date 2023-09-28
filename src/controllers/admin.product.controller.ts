@@ -21,8 +21,8 @@ export const createProduct = catchAsyncError<
     owner: req.user._id,
   });
 
-  product.features = product.features.slice(0, 10);
-  product.tags = product.tags.slice(0, 5);
+  product.features.splice(10);
+  product.tags.splice(5);
   switch (product.category) {
     case "mobile":
       break;
@@ -33,6 +33,7 @@ export const createProduct = catchAsyncError<
     default:
       delete product["ram"];
   }
+
   product.sizes = product.sizes.filter((size) => {
     return (
       size === "sm" ||
@@ -41,8 +42,8 @@ export const createProduct = catchAsyncError<
       size === "xl" ||
       size === "2xl"
     );
-  });
-  product.colors = product.colors.slice(0, 7);
+  }) as typeof product.sizes;
+  product.colors.splice(7);
 
   if (images) {
     for (const image of images.slice(0, 5)) {
@@ -87,10 +88,9 @@ export const updateProduct = catchAsyncError<
       );
       const res = await uploadImage(image);
       if (res) {
-        product.images[images.indexesToDelete[delIndex]] = {
-          public_id: res.public_id,
-          url: res.url,
-        };
+        product.images[images.indexesToDelete[delIndex]].public_id =
+          res.public_id;
+        product.images[images.indexesToDelete[delIndex]].url = res.url;
       }
     }
     delIndex++;

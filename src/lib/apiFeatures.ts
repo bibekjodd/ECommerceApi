@@ -1,11 +1,11 @@
 import mongoose, { FilterQuery } from "mongoose";
-import { Query } from "../controllers/product.controller";
-import { IProduct, QueryProduct } from "../models/product.model";
-type ProductFilterQuery = FilterQuery<IProduct>;
+import { TProduct, QueryProduct } from "../models/product.model";
+import { GetProductsQuery } from "../types/product";
+type ProductFilterQuery = FilterQuery<TProduct>;
 
 export default class ApiFeatures {
   totalProducts = 0;
-  constructor(public result: QueryProduct, public query: Query) {
+  constructor(public result: QueryProduct, public query: GetProductsQuery) {
     this.result = result;
     this.query = query;
   }
@@ -40,7 +40,7 @@ export default class ApiFeatures {
   }
 
   /**
-   * Filter product by `price` & `rating`
+   * filter product by `price` & `rating`
    */
   filter() {
     // --------- filter by price ---------

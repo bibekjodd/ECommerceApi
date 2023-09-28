@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
+import { IProduct } from "../types/product";
 
-
-
-const productSchema = new mongoose.Schema(
+const productSchema = new mongoose.Schema<IProduct, mongoose.Model<IProduct>>(
   {
     title: {
       type: String,
@@ -32,7 +31,7 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    tags: [{ type: String }],
+    tags: [String],
     ram: { type: Number },
     sizes: [{ type: String }],
     colors: [
@@ -79,13 +78,9 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export interface IProduct
-  extends mongoose.Document,
-    mongoose.InferSchemaType<typeof productSchema> {
-  //
-}
+export type TProduct = mongoose.Document & IProduct;
 
-const Product = mongoose.model<IProduct>("Product", productSchema);
+const Product = mongoose.model("Product", productSchema);
 export default Product;
 
 export type QueryProduct = mongoose.Query<IProduct[], IProduct>;

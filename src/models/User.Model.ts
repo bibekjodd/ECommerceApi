@@ -4,8 +4,8 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-interface IUser {
-  _id: mongoose.Schema.Types.ObjectId;
+export interface IUser {
+  _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password?: string;
@@ -92,9 +92,6 @@ userSchema.methods.generateToken = function () {
   });
 };
 
-/**
- * generates token of 20 bytes that expires after 15 minutes don't forget tosave after generating token
- */
 userSchema.methods.getResetPasswordToken = function () {
   const token = crypto.randomBytes(20).toString("hex");
   this.resetPasswordToken = crypto

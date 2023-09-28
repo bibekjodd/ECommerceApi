@@ -36,6 +36,7 @@ const crypto_1 = __importDefault(require("crypto"));
 const cloudinary_1 = require("../lib/cloudinary");
 /**
  * register user api
+ *
  * `avatar` must be passed as datauri
  */
 exports.registerUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {

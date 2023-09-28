@@ -6,14 +6,9 @@ import sendEmail from "../lib/sendEmail";
 import crypto from "crypto";
 import { uploadImage } from "../lib/cloudinary";
 
-interface RegisterUserBody {
-  name?: string;
-  email?: string;
-  password?: string;
-  avatar?: string;
-}
 /**
  * register user api
+ *
  * `avatar` must be passed as datauri
  */
 export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
@@ -43,14 +38,10 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
   }
 );
 
-interface LoginBody {
-  email?: string;
-  password?: string;
-}
 /**
  * Login api. Sends the token to user
  */
-export const loginUser = catchAsyncError<unknown, unknown, LoginBody>(
+export const loginUser = catchAsyncError<unknown, unknown, LoginUserBody>(
   async (req, res, next) => {
     const { email, password } = req.body;
 
@@ -93,9 +84,6 @@ export const deleteProfile = catchAsyncError(async (req, res) => {
     .json({ message: "Your profile is deleted successfully" });
 });
 
-/**
- * forgot password Api
- */
 interface ForgotPasswordBody {
   email?: string;
 }
@@ -146,10 +134,11 @@ export const resetPassword = catchAsyncError<
   sendToken(user, res, 200);
 });
 
+type UpdatePasswordBody = { oldPassword: string; newPassword: string };
 export const updatePassword = catchAsyncError<
   unknown,
   unknown,
-  { oldPassword: string; newPassword: string }
+  UpdatePasswordBody
 >(async (req, res, next) => {
   const { oldPassword, newPassword } = req.body;
 
@@ -168,12 +157,7 @@ export const updatePassword = catchAsyncError<
 export const updateProfile = catchAsyncError<
   unknown,
   unknown,
-  {
-    name?: string;
-    email?: string;
-    avatar?: string;
-    password?: string;
-  }
+  UpdateProfileBody
 >(async (req, res) => {
   const { name, email, avatar, password } = req.body;
   if (name) req.user.name = name;

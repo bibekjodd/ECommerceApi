@@ -8,9 +8,6 @@ const user_model_1 = __importDefault(require("../models/user.model"));
 const errorHandler_1 = require("../lib/errorHandler");
 const catchAsyncError_1 = require("./catchAsyncError");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-/**
- * middleware to check if the user is valid or not from `req.cookies.token`
- */
 exports.isAuthenticatedUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     try {
         const token = req.cookies?.token;
@@ -30,8 +27,7 @@ exports.isAuthenticatedUser = (0, catchAsyncError_1.catchAsyncError)(async (req,
     }
 });
 /**
- * middleware that checks if the user is admin or not
- * isAuthenticatedUser must be used before this.
+ * `isAuthenticatedUser` must be used before this.
  */
 exports.isAdmin = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     if (req.user?.role !== "admin")

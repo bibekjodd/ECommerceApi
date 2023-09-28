@@ -37,7 +37,7 @@ class ApiFeatures {
         return this.query.owner && !mongoose_1.default.isValidObjectId(this.query.owner);
     }
     /**
-     * Filter product by `price` & `rating`
+     * filter product by `price` & `rating`
      */
     filter() {
         // --------- filter by price ---------

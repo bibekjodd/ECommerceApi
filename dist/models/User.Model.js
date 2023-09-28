@@ -56,9 +56,6 @@ userSchema.methods.generateToken = function () {
         expiresIn: "7d",
     });
 };
-/**
- * generates token of 20 bytes that expires after 15 minutes don't forget tosave after generating token
- */
 userSchema.methods.getResetPasswordToken = function () {
     const token = crypto_1.default.randomBytes(20).toString("hex");
     this.resetPasswordToken = crypto_1.default

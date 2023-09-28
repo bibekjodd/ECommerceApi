@@ -33,7 +33,7 @@ const productSchema = new mongoose_1.default.Schema({
         type: Number,
         default: 0,
     },
-    tags: [{ type: String }],
+    tags: [String],
     ram: { type: Number },
     sizes: [{ type: String }],
     colors: [

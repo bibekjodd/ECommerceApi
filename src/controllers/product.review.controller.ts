@@ -97,7 +97,7 @@ export const deleteProductReview = catchAsyncError<
   const totalRatings = product.ratings * product.numOfReviews - review.rating;
   product.reviews = product.reviews.filter(
     (item) => item.toString() !== review._id.toString()
-  );
+  ) as typeof product.reviews;
 
   product.numOfReviews = product.reviews.length;
   product.ratings = totalRatings / (product.numOfReviews || 1);

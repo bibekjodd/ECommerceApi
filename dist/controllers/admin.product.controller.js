@@ -16,8 +16,8 @@ exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
         ...productDetails,
         owner: req.user._id,
     });
-    product.features = product.features.slice(0, 10);
-    product.tags = product.tags.slice(0, 5);
+    product.features.splice(10);
+    product.tags.splice(5);
     switch (product.category) {
         case "mobile":
             break;
@@ -35,7 +35,7 @@ exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
             size === "xl" ||
             size === "2xl");
     });
-    product.colors = product.colors.slice(0, 7);
+    product.colors.splice(7);
     if (images) {
         for (const image of images.slice(0, 5)) {
             const res = await (0, cloudinary_1.uploadImage)(image);
@@ -67,10 +67,9 @@ exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, 
             await (0, cloudinary_1.deleteImage)(product.images[images.indexesToDelete[delIndex]]?.public_id || "");
             const res = await (0, cloudinary_1.uploadImage)(image);
             if (res) {
-                product.images[images.indexesToDelete[delIndex]] = {
-                    public_id: res.public_id,
-                    url: res.url,
-                };
+                product.images[images.indexesToDelete[delIndex]].public_id =
+                    res.public_id;
+                product.images[images.indexesToDelete[delIndex]].url = res.url;
             }
         }
         delIndex++;

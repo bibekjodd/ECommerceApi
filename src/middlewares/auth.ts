@@ -3,9 +3,6 @@ import { ErrorHandler } from "../lib/errorHandler";
 import { catchAsyncError } from "./catchAsyncError";
 import jwt from "jsonwebtoken";
 
-/**
- * middleware to check if the user is valid or not from `req.cookies.token`
- */
 export const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   try {
     const token = req.cookies?.token;
@@ -34,8 +31,7 @@ export const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
 });
 
 /**
- * middleware that checks if the user is admin or not
- * isAuthenticatedUser must be used before this.
+ * `isAuthenticatedUser` must be used before this.
  */
 export const isAdmin = catchAsyncError(async (req, res, next) => {
   if (req.user?.role !== "admin")
