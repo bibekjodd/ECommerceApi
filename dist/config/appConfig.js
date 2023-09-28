@@ -33,7 +33,7 @@ const initialConfig = (app) => {
         }
         next();
     }));
-    app.get("/api/status", (req, res) => {
+    app.get("/", (req, res) => {
         res.status(200).json({
             message: "Server is running",
             envLoaded: global.envLoaded,
