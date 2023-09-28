@@ -5,6 +5,11 @@ import sendToken, { cookieOptions } from "../lib/sendToken";
 import sendEmail from "../lib/sendEmail";
 import crypto from "crypto";
 import { uploadImage } from "../lib/cloudinary";
+import {
+  LoginUserBody,
+  RegisterUserBody,
+  UpdateProfileBody,
+} from "../types/user";
 
 /**
  * register user api

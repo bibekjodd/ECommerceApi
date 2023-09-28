@@ -3,23 +3,7 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-
-export interface IUser {
-  _id: mongoose.Types.ObjectId;
-  name: string;
-  email: string;
-  password?: string;
-  avatar?: {
-    public_id?: string;
-    url?: string;
-  };
-  emailVerified: boolean;
-  role: "user" | "admin";
-  resetPasswordToken?: string;
-  resetPasswordExpire?: number;
-  createdAt: NativeDate;
-  updatedAt: NativeDate;
-}
+import { IUser } from "../types/user";
 
 type UserMethods = {
   comparePassword: (password: string) => Promise<boolean>;
