@@ -4,39 +4,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProduct = exports.updateProduct = exports.createProduct = void 0;
-const validateProduct_1 = require("../lib/validateProduct");
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const product_model_1 = __importDefault(require("../models/product.model"));
 const errorHandler_1 = require("../lib/errorHandler");
 const cloudinary_1 = require("../lib/cloudinary");
+const validators_1 = require("../lib/validators");
 exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
-    (0, validateProduct_1.validateProduct)(req.body);
     const { images, ...productDetails } = req.body;
     let product = new product_model_1.default({
         ...productDetails,
         owner: req.user._id,
     });
-    product.features.splice(10);
-    product.tags.splice(5);
-    switch (product.category) {
-        case "mobile":
-            break;
-        case "laptop":
-            break;
-        case "electronics":
-            break;
-        default:
-            delete product["ram"];
-    }
-    product.sizes = product.sizes.filter((size) => {
-        return (size === "sm" ||
-            size === "md" ||
-            size === "lg" ||
-            size === "xl" ||
-            size === "2xl");
-    });
-    product.colors.splice(7);
-    if (images) {
+    if (images && (0, validators_1.isStringArray)(images)) {
         for (const image of images.slice(0, 5)) {
             const res = await (0, cloudinary_1.uploadImage)(image);
             if (res)
@@ -54,14 +33,17 @@ exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
 exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     const product = await product_model_1.default.findById(req.params.id);
     if (!product)
-        return next(new errorHandler_1.ErrorHandler("Product with this id doesn't exist", 400));
-    (0, validateProduct_1.validateUpdateProduct)(req.body);
+        return next(new errorHandler_1.ErrorHandler("Product doesn't exist", 400));
     const { images, ...productDetails } = req.body;
     for (const key of Object.keys(productDetails)) {
         // @ts-ignore
         product[key] = productDetails[key];
     }
-    if (images) {
+    if (images &&
+        images.add &&
+        images.indexesToDelete &&
+        (0, validators_1.isStringArray)(images.add) &&
+        (0, validators_1.isNumberArray)(images.add)) {
         let delIndex = 0;
         for (const image of images.add.slice(0, 5)) {
             await (0, cloudinary_1.deleteImage)(product.images[images.indexesToDelete[delIndex]]?.public_id || "");

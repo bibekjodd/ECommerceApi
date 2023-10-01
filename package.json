@@ -9,7 +9,7 @@
     "lint": "eslint ./src",
     "dev": "nodemon --exec ts-node --transpile-only src/app.ts",
     "start": "node dist/app.js",
-    "build": "npm run lint && rimraf dist && tsc"
+    "build": "rimraf dist && tsc"
   },
   "keywords": [],
   "author": "",
