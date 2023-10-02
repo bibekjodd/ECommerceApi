@@ -7,6 +7,6 @@ export interface IReview {
   user: Types.ObjectId;
   title?: string;
   rating: number;
-  comment: string;
+  comment?: string;
   product: Types.ObjectId;
 }

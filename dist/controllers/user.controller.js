@@ -31,7 +31,7 @@ const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const user_model_1 = __importDefault(require("../models/user.model"));
 const errorHandler_1 = require("../lib/errorHandler");
 const sendToken_1 = __importStar(require("../lib/sendToken"));
-const sendEmail_1 = __importDefault(require("../lib/sendEmail"));
+const sendMail_1 = __importDefault(require("../lib/sendMail"));
 const crypto_1 = __importDefault(require("crypto"));
 const cloudinary_1 = require("../lib/cloudinary");
 /**
@@ -109,7 +109,7 @@ exports.forgotPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res,
     const message = `Click on this link to reset password. <br>
   <a href=${link}>${link}</a>
   `;
-    await (0, sendEmail_1.default)({ mail: email, text: message, subject });
+    await (0, sendMail_1.default)({ mail: email, text: message, subject });
     res.status(200).json({ message: "Password Recovery sent to mail", token });
 });
 exports.resetPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {

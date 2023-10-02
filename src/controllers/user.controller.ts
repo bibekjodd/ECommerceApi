@@ -2,7 +2,7 @@ import { catchAsyncError } from "../middlewares/catchAsyncError";
 import User from "../models/user.model";
 import { ErrorHandler } from "../lib/errorHandler";
 import sendToken, { cookieOptions } from "../lib/sendToken";
-import sendEmail from "../lib/sendEmail";
+import sendEmail from "../lib/sendMail";
 import crypto from "crypto";
 import { uploadImage } from "../lib/cloudinary";
 import {
