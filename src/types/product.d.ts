@@ -19,9 +19,12 @@ export interface IProduct {
   category: string;
   stock: number;
   numOfReviews: number;
-  reviews: Types.Array<Types.ObjectId>;
   owner: Types.ObjectId;
 }
+
+export type ProductStatics = {
+  updateOnReviewChange: (productId: string) => Promise<void>;
+};
 
 export type Color = { code: string; value: string };
 export type Image = { public_id: string; url: string };

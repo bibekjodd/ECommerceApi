@@ -14,21 +14,21 @@ export interface IOrder {
     phoneNo: string;
   };
 
-  orderItems: [
-    {
-      productId: Types.ObjectId;
-      price: number;
-    }
-  ];
+  orderItems: Types.DocumentArray<{
+    productId: Types.ObjectId;
+    taxCost?: number;
+    discount?: number;
+    shippingCost?: number;
+    cost: number;
+    finalCost: number;
+  }>;
   user: Types.ObjectId;
   paidAt: number;
-  shippingCost?: number;
-  taxCost?: number;
-  itemsCost: number;
-  discount?: number;
+  totalShippingCost?: number;
+  totalTaxCost?: number;
+  totalItemsCost: number;
+  totalDiscount?: number;
   totalCost: number;
   status: "processing" | "delivered";
   deliveredAt?: number;
 }
-
-new Date();

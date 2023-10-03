@@ -15,8 +15,6 @@ const reviewSchema = new mongoose.Schema<IReview, mongoose.Model<IReview>>(
     rating: {
       type: Number,
       required: true,
-      min: [1, "Rating must be not be zero or negative"],
-      max: [5, "Rating can't be more than 5"],
       transform: (value: number) => {
         if (value < 1) return 1;
         if (value > 5) return 5;
@@ -30,6 +28,7 @@ const reviewSchema = new mongoose.Schema<IReview, mongoose.Model<IReview>>(
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
+      required: [true, "Can't review product without product Id!"],
     },
   },
   { timestamps: true }

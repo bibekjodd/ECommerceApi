@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
+const updateOnReviewChange_1 = require("../lib/statics/updateOnReviewChange");
 const productSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
@@ -108,14 +109,12 @@ const productSchema = new mongoose_1.default.Schema({
         type: Number,
         default: 0,
     },
-    reviews: {
-        type: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "Review" }],
-    },
     owner: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
 }, { timestamps: true });
+productSchema.statics.updateOnReviewChange = updateOnReviewChange_1.updateOnReviewChange;
 const Product = mongoose_1.default.model("Product", productSchema);
 exports.default = Product;

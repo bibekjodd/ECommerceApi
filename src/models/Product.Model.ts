@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { Color, IProduct, Image } from "../types/product";
+import { Color, IProduct, Image, ProductStatics } from "../types/product";
+import { updateOnReviewChange } from "../lib/statics/updateOnReviewChange";
 
 const productSchema = new mongoose.Schema<IProduct, mongoose.Model<IProduct>>(
   {
@@ -106,21 +107,24 @@ const productSchema = new mongoose.Schema<IProduct, mongoose.Model<IProduct>>(
       type: Number,
       default: 0,
     },
-    reviews: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
-    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
   },
+
   { timestamps: true }
 );
 
+productSchema.statics.updateOnReviewChange = updateOnReviewChange;
+
 export type TProduct = mongoose.Document & IProduct;
 
-const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.model<
+  IProduct,
+  mongoose.Model<IProduct> & ProductStatics
+>("Product", productSchema);
 export default Product;
 
 export type QueryProduct = mongoose.Query<IProduct[], IProduct>;

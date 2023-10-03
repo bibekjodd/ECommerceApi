@@ -10,3 +10,10 @@ export interface IReview {
   comment?: string;
   product: Types.ObjectId;
 }
+
+export type createOrUpdateReviewBody = Partial<{
+  rating: number;
+  comment: string;
+  productId: string;
+  title: string;
+}>;

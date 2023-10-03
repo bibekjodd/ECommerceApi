@@ -17,8 +17,6 @@ const reviewSchema = new mongoose_1.default.Schema({
     rating: {
         type: Number,
         required: true,
-        min: [1, "Rating must be not be zero or negative"],
-        max: [5, "Rating can't be more than 5"],
         transform: (value) => {
             if (value < 1)
                 return 1;
@@ -34,6 +32,7 @@ const reviewSchema = new mongoose_1.default.Schema({
     product: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "Product",
+        required: [true, "Can't review product without product Id!"],
     },
 }, { timestamps: true });
 const Review = mongoose_1.default.model("Review", reviewSchema);

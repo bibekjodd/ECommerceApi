@@ -42,30 +42,34 @@ const orderSchema = new mongoose.Schema<IOrder, mongoose.Model<IOrder>>(
       },
     },
 
-    orderItems: {
-      type: [
-        {
-          productId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
-            required: true,
-          },
-          price: {
-            type: Number,
-            required: true,
-          },
+    orderItems: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
         },
-      ],
-    },
+        taxCost: Number,
+        discount: Number,
+        shippingCost: Number,
+        cost: { type: Number, required: true },
+        finalCost: { type: Number, required: true },
+      },
+    ],
 
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     paidAt: { type: Number, required: true },
-    shippingCost: Number,
-    taxCost: Number,
-    itemsCost: { type: Number, required: true },
-    discount: Number,
+    totalShippingCost: Number,
+    totalTaxCost: Number,
+    totalItemsCost: { type: Number, required: true },
+    totalDiscount: Number,
     totalCost: { type: Number, required: true },
-    status: { type: String, enum: ["processing", "delivered"] },
+    status: {
+      type: String,
+      enum: ["processing", "delivered"],
+      default: "processing",
+      required: true,
+    },
     deliveredAt: Number,
   },
   { timestamps: true }
