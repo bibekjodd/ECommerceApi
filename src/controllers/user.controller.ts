@@ -1,6 +1,6 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import User from "../models/user.model";
-import { ErrorHandler } from "../lib/errorHandler";
+import { CustomError } from "../lib/customError";
 import sendToken, { cookieOptions } from "../lib/sendToken";
 import sendEmail from "../lib/sendMail";
 import crypto from "crypto";
@@ -17,15 +17,15 @@ import {
  * `avatar` must be passed as datauri
  */
 export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
-  async (req, res, next) => {
+  async (req, res) => {
     const { name, email, password, avatar } = req.body;
 
     if (!name || !email || !password)
-      return next(new ErrorHandler("Please enter required fields", 400));
+      throw new CustomError("Please Enter the required fields", 400);
 
     const userExists = await User.findOne({ email });
     if (userExists)
-      return next(new ErrorHandler("User with same email already exists", 400));
+      throw new CustomError("User with same email already exists", 400);
 
     const user = await User.create({ name, email, password });
     if (avatar) {
@@ -47,18 +47,17 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
  * Login api. Sends the token to user
  */
 export const loginUser = catchAsyncError<unknown, unknown, LoginUserBody>(
-  async (req, res, next) => {
+  async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password)
-      return next(new ErrorHandler("Please enter required credintials", 400));
+      throw new CustomError("Please enter required credintials", 400);
 
     const user = await User.findOne({ email }).select("+password");
-    if (!user) return next(new ErrorHandler("Invalid user credintials", 400));
+    if (!user) throw new CustomError("Invalid user credintials", 400);
 
     const isMatch = await user.comparePassword(password || "");
-    if (!isMatch)
-      return next(new ErrorHandler("Invalid user credintials", 400));
+    if (!isMatch) throw new CustomError("Invalid user credintials", 400);
 
     sendToken(user, res, 200);
   }
@@ -68,7 +67,7 @@ export const loginUser = catchAsyncError<unknown, unknown, LoginUserBody>(
  * Get My Profile Api
  */
 export const getUserDetails = catchAsyncError(async (req, res) => {
-  res.status(200).json({ user: req.user });
+  return res.json({ user: req.user });
 });
 
 /**
@@ -96,12 +95,11 @@ export const forgotPassword = catchAsyncError<
   unknown,
   unknown,
   ForgotPasswordBody
->(async (req, res, next) => {
+>(async (req, res) => {
   const { email } = req.body;
-  if (!email) return next(new ErrorHandler("Please provide your email", 400));
+  if (!email) throw new CustomError("Please provide your email", 400);
   const user = await User.findOne({ email });
-  if (!user)
-    return next(new ErrorHandler("User with this email doesn't exist", 400));
+  if (!user) throw new CustomError("User with this email doesn't exist", 400);
 
   const token = user.getResetPasswordToken();
   await user.save();
@@ -112,14 +110,14 @@ export const forgotPassword = catchAsyncError<
   `;
 
   await sendEmail({ mail: email, text: message, subject });
-  res.status(200).json({ message: "Password Recovery sent to mail", token });
+  return res.json({ message: "Password Recovery sent to mail", token });
 });
 
 export const resetPassword = catchAsyncError<
   { token: string },
   unknown,
   { password?: string }
->(async (req, res, next) => {
+>(async (req, res) => {
   const token = req.params.token;
   const resetToken = crypto.createHash("sha256").update(token).digest("hex");
   const user = await User.findOne({
@@ -127,10 +125,10 @@ export const resetPassword = catchAsyncError<
     resetPasswordExpire: { $gt: Date.now() },
   });
 
-  if (!user) return next(new ErrorHandler("Token is invalid or expired", 400));
+  if (!user) throw new CustomError("Token is invalid or expired", 400);
 
   const { password } = req.body;
-  if (!password) return next(new ErrorHandler("Please provide password", 400));
+  if (!password) throw new CustomError("Please provide password", 400);
   user.password = password;
   user.resetPasswordExpire = undefined;
   user.resetPasswordToken = undefined;
@@ -144,19 +142,19 @@ export const updatePassword = catchAsyncError<
   unknown,
   unknown,
   UpdatePasswordBody
->(async (req, res, next) => {
+>(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   if (!oldPassword || !newPassword)
-    return next(new ErrorHandler("Please enter required fields", 400));
+    throw new CustomError("Please enter required fields", 400);
 
   const isMatch = await req.user.comparePassword(oldPassword);
-  if (!isMatch) return next(new ErrorHandler("Incorrect old password", 400));
+  if (!isMatch) throw new CustomError("Incorrect old password", 400);
 
   req.user.password = newPassword;
   await req.user.save();
 
-  res.status(200).json({ message: "Password updated successfully" });
+  return res.json({ message: "Password updated successfully" });
 });
 
 export const updateProfile = catchAsyncError<
@@ -184,7 +182,7 @@ export const updateProfile = catchAsyncError<
     }
   }
   await req.user.save();
-  return res.status(200).json({
+  return res.json({
     message: `Profile updated successfully ${
       uploadFailed ? "but avatar could not be updated" : ""
     }`,

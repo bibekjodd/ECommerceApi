@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProduct = exports.updateProduct = exports.createProduct = void 0;
 const catchAsyncError_1 = require("../middlewares/catchAsyncError");
 const product_model_1 = __importDefault(require("../models/product.model"));
-const errorHandler_1 = require("../lib/errorHandler");
+const customError_1 = require("../lib/customError");
 const cloudinary_1 = require("../lib/cloudinary");
 const validators_1 = require("../lib/validators");
 exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
@@ -30,10 +30,10 @@ exports.createProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) 
         .status(201)
         .json({ product, message: "Product created successfully" });
 });
-exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
+exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
     const product = await product_model_1.default.findById(req.params.id);
     if (!product)
-        return next(new errorHandler_1.ErrorHandler("Product doesn't exist", 400));
+        throw new customError_1.CustomError("Product doesn't exist", 400);
     const { images, ...productDetails } = req.body;
     for (const key of Object.keys(productDetails)) {
         // @ts-ignore
@@ -57,9 +57,9 @@ exports.updateProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res, 
         delIndex++;
     }
     await product.save();
-    res.status(200).json({ message: "Product updated successfully" });
+    return res.json({ message: "Product updated successfully" });
 });
 exports.deleteProduct = (0, catchAsyncError_1.catchAsyncError)(async (req, res) => {
     await product_model_1.default.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Product deleted successfully" });
+    return res.json({ message: "Product deleted successfully" });
 });

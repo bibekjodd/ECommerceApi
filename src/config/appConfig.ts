@@ -39,7 +39,7 @@ export const initialConfig = (app: Express) => {
   );
 
   app.get("/", (req, res) => {
-    res.status(200).json({
+    return res.json({
       message: "Server is running",
       envLoaded: global.envLoaded,
       databaseConnected: global.databaseConnected,

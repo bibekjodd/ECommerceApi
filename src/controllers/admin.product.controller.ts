@@ -1,6 +1,6 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import Product from "../models/product.model";
-import { ErrorHandler } from "../lib/errorHandler";
+import { CustomError } from "../lib/customError";
 import { deleteImage, uploadImage } from "../lib/cloudinary";
 import { CreateProductBody, UpdateProductBody } from "../types/product";
 import { isNumberArray, isStringArray } from "../lib/validators";
@@ -38,9 +38,9 @@ export const updateProduct = catchAsyncError<
   { id: string },
   unknown,
   UpdateProductBody
->(async (req, res, next) => {
+>(async (req, res) => {
   const product = await Product.findById(req.params.id);
-  if (!product) return next(new ErrorHandler("Product doesn't exist", 400));
+  if (!product) throw new CustomError("Product doesn't exist", 400);
 
   const { images, ...productDetails } = req.body;
   for (const key of Object.keys(productDetails)) {
@@ -71,13 +71,13 @@ export const updateProduct = catchAsyncError<
   }
 
   await product.save();
-  res.status(200).json({ message: "Product updated successfully" });
+  return res.json({ message: "Product updated successfully" });
 });
 
 export const deleteProduct = catchAsyncError<{ id: string }>(
   async (req, res) => {
     await Product.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ message: "Product deleted successfully" });
+    return res.json({ message: "Product deleted successfully" });
   }
 );

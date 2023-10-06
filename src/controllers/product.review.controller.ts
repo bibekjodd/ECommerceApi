@@ -1,4 +1,4 @@
-import { ErrorHandler } from "../lib/errorHandler";
+import { CustomError } from "../lib/customError";
 import { catchAsyncError } from "../middlewares/catchAsyncError";
 import Product from "../models/product.model";
 import Review from "../models/review.model";
@@ -8,10 +8,9 @@ export const createOrUpdateReview = catchAsyncError<
   unknown,
   unknown,
   createOrUpdateReviewBody
->(async (req, res, next) => {
+>(async (req, res) => {
   const { rating, comment, productId, title } = req.body;
-  if (!productId)
-    return next(new ErrorHandler("Product id is needed for review!"));
+  if (!productId) throw new CustomError("Product id is needed for review!");
 
   let review = await Review.findOne({
     product: productId,
@@ -38,7 +37,7 @@ export const createOrUpdateReview = catchAsyncError<
 
   await Product.updateOnReviewChange(productId);
 
-  res.status(200).json({
+  return res.json({
     message: reviewExists ? "Product Review Updated" : "Product Reviewed",
     review,
   });
@@ -49,16 +48,16 @@ export const getProductReviews = catchAsyncError<
   unknown,
   unknown,
   { id?: string }
->(async (req, res, next) => {
+>(async (req, res) => {
   const product = await Product.findById(req.query.id);
-  if (!product) return next(new ErrorHandler("Product doesn't exist", 400));
+  if (!product) throw new CustomError("Product doesn't exist", 400);
 
   const reviews = await Review.find({ product: req.query.id }).populate(
     "user",
     "name email avatar"
   );
 
-  res.status(200).json({ total: reviews.length, reviews });
+  return res.json({ total: reviews.length, reviews });
 });
 
 export const deleteProductReview = catchAsyncError<
@@ -66,17 +65,17 @@ export const deleteProductReview = catchAsyncError<
   unknown,
   unknown,
   { id?: string }
->(async (req, res, next) => {
+>(async (req, res) => {
   const review = await Review.findById(req.query.id);
-  if (!review) return next(new ErrorHandler("Review already deleted", 200));
+  if (!review) throw new CustomError("Review already deleted", 200);
   if (
     req.user._id.toString() !== review.user._id.toString() &&
     req.user.role !== "admin"
   )
-    return next(new ErrorHandler("Must be reviewer to delete review", 400));
+    throw new CustomError("Must be reviewer to delete review", 400);
 
   await review.deleteOne();
   await Product.updateOnReviewChange(review?.product.toString());
 
-  res.status(200).json({ message: "Review deleted successfully" });
+  return res.json({ message: "Review deleted successfully" });
 });

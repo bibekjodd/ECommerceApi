@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ErrorHandler = void 0;
-class ErrorHandler extends Error {
+exports.CustomError = void 0;
+class CustomError extends Error {
     constructor(message, statusCode) {
         super(message || "Internal Server Error");
         this.message = message;
@@ -9,4 +9,4 @@ class ErrorHandler extends Error {
         this.statusCode = statusCode;
     }
 }
-exports.ErrorHandler = ErrorHandler;
+exports.CustomError = CustomError;

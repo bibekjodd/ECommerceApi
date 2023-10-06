@@ -4,12 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.error = void 0;
-const errorHandler_1 = require("../lib/errorHandler");
+const customError_1 = require("../lib/customError");
 const mongoose_1 = __importDefault(require("mongoose"));
 const error = (err, req, res, next) => {
     let message = "Internal Server Error";
     let statusCode = 500;
-    if (err instanceof errorHandler_1.ErrorHandler) {
+    if (err instanceof customError_1.CustomError) {
         message = err.message;
         statusCode = err.statusCode || 500;
     }
