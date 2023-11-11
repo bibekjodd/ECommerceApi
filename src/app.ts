@@ -10,14 +10,12 @@ import productReviewRouter from './routes/product.review.route';
 import adminRouter from './routes/admin.route';
 import adminUserRouter from './routes/admin.user.route';
 import adminProductRouter from './routes/admin.product.route';
-import connectDatabase from './config/database';
 import devConsole from './lib/devConsole';
 import { env } from './config/env.config';
 
 // -------- initial config for api --------
 initialConfig(app);
 
-connectDatabase();
 // -------- routes --------
 app.use('/api/v1', userRouter);
 app.use('/api/v1', productRouter);
