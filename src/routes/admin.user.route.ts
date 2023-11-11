@@ -7,13 +7,12 @@ import {
   updateUserRole
 } from '@/controllers/admin.user.controller';
 const router = Router();
-router.use(isAuthenticatedUser, isAdmin);
 
 // ---------------------- Admin User Routes ----------------------
-router.route('/admin/users').get(getAllUsers);
+router.route('/admin/users').get(isAuthenticatedUser, isAdmin, getAllUsers);
 router
   .route('/admin/user/:id')
-  .get(getSingleUser)
-  .put(updateUserRole)
-  .delete(deleteUser);
+  .get(isAuthenticatedUser, isAdmin, getSingleUser)
+  .put(isAuthenticatedUser, isAdmin, updateUserRole)
+  .delete(isAuthenticatedUser, isAdmin, deleteUser);
 export default router;
