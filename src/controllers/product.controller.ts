@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
-import ApiFeatures from '../lib/apiFeatures';
-import { CustomError } from '../lib/customError';
-import { catchAsyncError } from '../middlewares/catchAsyncError';
-import Product from '../models/product.model';
+import {isValidObjectId} from 'mongoose';
+import ApiFeatures from '@/lib/apiFeatures';
+import { CustomError } from '@/lib/customError';
+import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import Product from '@/models/product.model';
 
 export type GetProductsQuery = Partial<{
   title: string;
@@ -62,7 +62,7 @@ export const getAllProducts = catchAsyncError<
 
 export const getProductDetails = catchAsyncError<{ id: string }>(
   async (req, res) => {
-    if (!mongoose.isValidObjectId(req.params.id)) {
+    if (!isValidObjectId(req.params.id)) {
       return res.status(400).json({ message: 'Invalid Product Id' });
     }
     const product = await Product.findById(req.params.id)

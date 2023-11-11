@@ -1,9 +1,10 @@
 import { type ErrorRequestHandler } from 'express';
-import { CustomError } from '../lib/customError';
-import mongoose from 'mongoose';
-import { env } from '../config/env.config';
+import { CustomError } from '@/lib/customError';
+import { env } from '@/config/env.config';
+import { MongooseError } from 'mongoose';
 
 export const error: ErrorRequestHandler = (err, req, res, next) => {
+  next;
   let message = 'Internal Server Error';
   let statusCode = 500;
 
@@ -12,7 +13,7 @@ export const error: ErrorRequestHandler = (err, req, res, next) => {
     statusCode = err.statusCode || 500;
   }
 
-  if (err instanceof mongoose.MongooseError) {
+  if (err instanceof MongooseError) {
     if (err.name === 'CastError') {
       message = 'Invalid Id Provided';
       statusCode = 400;

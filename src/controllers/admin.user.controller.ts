@@ -1,6 +1,6 @@
-import { catchAsyncError } from '../middlewares/catchAsyncError';
-import User from '../models/user.model';
-import { CustomError } from '../lib/customError';
+import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import User from '@/models/user.model';
+import { CustomError } from '@/lib/customError';
 import cloudinary from 'cloudinary';
 
 export const getAllUsers = catchAsyncError(async (req, res) => {

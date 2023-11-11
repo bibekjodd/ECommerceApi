@@ -4,7 +4,7 @@ import cors from 'cors';
 import express, { type Express } from 'express';
 import { env } from './env.config';
 import connectDatabase from './database';
-import { catchAsyncError } from '../middlewares/catchAsyncError';
+import { catchAsyncError } from '@/middlewares/catchAsyncError';
 
 export const initialConfig = (app: Express) => {
   connectDatabase();

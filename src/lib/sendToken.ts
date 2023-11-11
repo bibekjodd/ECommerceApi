@@ -1,6 +1,6 @@
 import type { CookieOptions, Response } from 'express';
-import { type TUser } from '../models/user.model';
-import { env } from '../config/env.config';
+import { type TUser } from '@/models/user.model';
+import { env } from '@/config/env.config';
 
 export const cookieOptions: CookieOptions = {
   maxAge: Date.now() + 30 * 24 * 60 * 60 * 1000,

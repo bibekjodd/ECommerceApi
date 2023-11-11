@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { isAdmin, isAuthenticatedUser } from '../middlewares/auth';
+import { isAdmin, isAuthenticatedUser } from '@/middlewares/auth';
 import {
   deleteUser,
   getAllUsers,
   getSingleUser,
   updateUserRole
-} from '../controllers/admin.user.controller';
+} from '@/controllers/admin.user.controller';
 const router = Router();
 router.use(isAuthenticatedUser, isAdmin);
 

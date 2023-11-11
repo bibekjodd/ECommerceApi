@@ -1,8 +1,8 @@
-import User from '../models/user.model';
-import { CustomError } from '../lib/customError';
+import User from '@/models/user.model';
+import { CustomError } from '@/lib/customError';
 import { catchAsyncError } from './catchAsyncError';
 import jwt from 'jsonwebtoken';
-import { env } from '../config/env.config';
+import { env } from '@/config/env.config';
 
 export const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   try {

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 // import crypto from 'crypto';
-import { env } from '../config/env.config';
+import { env } from '@/config/env.config';
 
 export type IUser = {
   _id: Types.ObjectId;

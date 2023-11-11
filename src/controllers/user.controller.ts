@@ -1,9 +1,9 @@
-import { uploadImage } from '../lib/cloudinary';
-import { CustomError } from '../lib/customError';
-import sendEmail from '../lib/sendMail';
-import sendToken, { cookieOptions } from '../lib/sendToken';
-import { catchAsyncError } from '../middlewares/catchAsyncError';
-import User from '../models/user.model';
+import { uploadImage } from '@/lib/cloudinary';
+import { CustomError } from '@/lib/customError';
+import sendEmail from '@/lib/sendMail';
+import sendToken, { cookieOptions } from '@/lib/sendToken';
+import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import User from '@/models/user.model';
 
 type RegisterUserBody = Partial<{
   name: string;

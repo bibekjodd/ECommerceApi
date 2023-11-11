@@ -1,4 +1,4 @@
-import mongoose, { Types } from 'mongoose';
+import { Model, Schema, Types, model } from 'mongoose';
 
 export type IReview = {
   _id: Types.ObjectId;
@@ -10,10 +10,10 @@ export type IReview = {
   comment?: string;
   product: Types.ObjectId;
 };
-const reviewSchema = new mongoose.Schema<IReview, mongoose.Model<IReview>>(
+const reviewSchema = new Schema<IReview, Model<IReview>>(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
     },
@@ -35,7 +35,7 @@ const reviewSchema = new mongoose.Schema<IReview, mongoose.Model<IReview>>(
       maxlength: [200, 'Comment must not exceed 200 characters']
     },
     product: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Product',
       required: [true, "Can't review product without product Id!"]
     }
@@ -43,5 +43,5 @@ const reviewSchema = new mongoose.Schema<IReview, mongoose.Model<IReview>>(
   { timestamps: true }
 );
 
-const Review = mongoose.model('Review', reviewSchema);
+const Review = model('Review', reviewSchema);
 export default Review;

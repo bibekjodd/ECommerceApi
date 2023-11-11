@@ -1,6 +1,6 @@
-import mongoose, { type FilterQuery } from 'mongoose';
-import type { QueryProduct, TProduct } from '../models/product.model';
-import type { GetProductsQuery } from '../controllers/product.controller';
+import { type FilterQuery, isValidObjectId } from 'mongoose';
+import type { QueryProduct, TProduct } from '@/models/product.model';
+import type { GetProductsQuery } from '@/controllers/product.controller';
 type ProductFilterQuery = FilterQuery<TProduct>;
 
 export default class ApiFeatures {
@@ -39,7 +39,7 @@ export default class ApiFeatures {
   }
 
   invalidOwner() {
-    return this.query.owner && !mongoose.isValidObjectId(this.query.owner);
+    return this.query.owner && !isValidObjectId(this.query.owner);
   }
 
   /**

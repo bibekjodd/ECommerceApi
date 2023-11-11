@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { isAuthenticatedUser } from '../middlewares/auth';
+import { isAuthenticatedUser } from '@/middlewares/auth';
 import {
   createOrUpdateReview,
   deleteProductReview,
   getProductReviews
-} from '../controllers/product.review.controller';
+} from '@/controllers/product.review.controller';
 
 const router = Router();
 

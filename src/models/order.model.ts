@@ -1,4 +1,4 @@
-import mongoose, { Types } from 'mongoose';
+import { Types, model, Model, Schema } from 'mongoose';
 
 export type IOrder = {
   _id: Types.ObjectId;
@@ -33,7 +33,7 @@ export type IOrder = {
   deliveredAt?: number;
 };
 
-const orderSchema = new mongoose.Schema<IOrder, mongoose.Model<IOrder>>(
+const orderSchema = new Schema<IOrder, Model<IOrder>>(
   {
     shippingInfo: {
       address: {
@@ -77,7 +77,7 @@ const orderSchema = new mongoose.Schema<IOrder, mongoose.Model<IOrder>>(
     orderItems: [
       {
         productId: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: Schema.Types.ObjectId,
           ref: 'Product',
           required: true
         },
@@ -89,7 +89,7 @@ const orderSchema = new mongoose.Schema<IOrder, mongoose.Model<IOrder>>(
       }
     ],
 
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     paidAt: { type: Number, required: true },
     totalShippingCost: Number,
     totalTaxCost: Number,
@@ -107,5 +107,5 @@ const orderSchema = new mongoose.Schema<IOrder, mongoose.Model<IOrder>>(
   { timestamps: true }
 );
 
-const Order = mongoose.model('Order', orderSchema);
+const Order = model('Order', orderSchema);
 export default Order;

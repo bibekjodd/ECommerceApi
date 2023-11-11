@@ -1,8 +1,8 @@
-import { uploadImage } from '../lib/cloudinary';
-import { CustomError } from '../lib/customError';
-import { isStringArray } from '../lib/validators';
-import { catchAsyncError } from '../middlewares/catchAsyncError';
-import Product, { type IProduct } from '../models/product.model';
+import { uploadImage } from '@/lib/cloudinary';
+import { CustomError } from '@/lib/customError';
+import { isStringArray } from '@/lib/validators';
+import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import Product, { type IProduct } from '@/models/product.model';
 
 export type CreateProductBody = Omit<Partial<IProduct>, 'images'> & {
   images?: string[];

@@ -1,5 +1,5 @@
-import mongoose, { Types } from 'mongoose';
-import { updateOnReviewChange } from '../lib/statics/updateOnReviewChange';
+import { Types, model, Model, Schema, Document, Query } from 'mongoose';
+import { updateOnReviewChange } from '@/lib/statics/updateOnReviewChange';
 
 export type IProduct = {
   _id: Types.ObjectId;
@@ -26,7 +26,7 @@ export type IProduct = {
 type Color = { code: string; value: string };
 type Image = { public_id: string; url: string };
 
-const productSchema = new mongoose.Schema<IProduct, mongoose.Model<IProduct>>(
+const productSchema = new Schema<IProduct, Model<IProduct>>(
   {
     title: {
       type: String,
@@ -132,7 +132,7 @@ const productSchema = new mongoose.Schema<IProduct, mongoose.Model<IProduct>>(
       default: 0
     },
     owner: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
     }
@@ -143,15 +143,15 @@ const productSchema = new mongoose.Schema<IProduct, mongoose.Model<IProduct>>(
 
 productSchema.statics.updateOnReviewChange = updateOnReviewChange;
 
-export type TProduct = mongoose.Document & IProduct;
+export type TProduct = Document & IProduct;
 type ProductStatics = {
   updateOnReviewChange: (productId: string) => Promise<void>;
 };
 
-const Product = mongoose.model<
-  IProduct,
-  mongoose.Model<IProduct> & ProductStatics
->('Product', productSchema);
+const Product = model<IProduct, Model<IProduct> & ProductStatics>(
+  'Product',
+  productSchema
+);
 export default Product;
 
-export type QueryProduct = mongoose.Query<IProduct[], IProduct>;
+export type QueryProduct = Query<IProduct[], IProduct>;

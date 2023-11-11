@@ -1,7 +1,7 @@
-import { CustomError } from '../lib/customError';
-import { catchAsyncError } from '../middlewares/catchAsyncError';
-import Product from '../models/product.model';
-import Review from '../models/review.model';
+import { CustomError } from '@/lib/customError';
+import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import Product from '@/models/product.model';
+import Review from '@/models/review.model';
 
 type createOrUpdateReviewBody = Partial<{
   rating: number;

@@ -9,8 +9,8 @@ import {
   updatePassword,
   updateProfile,
   deleteProfile
-} from '../controllers/user.controller';
-import { isAuthenticatedUser } from '../middlewares/auth';
+} from '@/controllers/user.controller';
+import { isAuthenticatedUser } from '@/middlewares/auth';
 
 const router = express.Router();
 
