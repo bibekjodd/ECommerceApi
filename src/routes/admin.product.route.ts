@@ -8,17 +8,14 @@ import {
 import { getProductDetails } from '../controllers/product.controller';
 
 const router = express.Router();
+router.use(isAuthenticatedUser, isAdmin);
 
 // ---------------------- Admin Product Routes ----------------------
-
-router
-  .route('/admin/product')
-  .post(isAuthenticatedUser, isAdmin, createProduct);
-
+router.route('/admin/product').post(createProduct);
 router
   .route('/admin/product/:id')
-  .put(isAuthenticatedUser, isAdmin, updateProduct)
-  .delete(isAuthenticatedUser, isAdmin, deleteProduct)
-  .get(isAuthenticatedUser, isAdmin, getProductDetails);
+  .put(updateProduct)
+  .delete(deleteProduct)
+  .get(getProductDetails);
 
 export default router;
