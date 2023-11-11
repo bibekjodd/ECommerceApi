@@ -2,14 +2,17 @@
   "name": "ecommerceapi",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "tsc && npm run start",
-    "lint": "eslint ./src",
-    "dev": "nodemon --exec ts-node --transpile-only src/app.ts",
+    "lint": "eslint src && tsc",
+    "build": "esbuild src/app.ts --bundle --platform=node --outfile=dist/app.js --format=esm",
     "start": "node dist/app.js",
-    "build": "rimraf dist && tsc"
+    "dev:tsc": "tsc --watch --preserveWatchOutput",
+    "dev:node": "node --watch dist/app.js",
+    "dev:esbuild": "pnpm run build --watch",
+    "dev": "run-p dev:*",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -26,7 +29,6 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.1",
     "nodemailer": "^6.9.2",
-    "rimraf": "^5.0.1",
     "validator": "^13.9.0",
     "zod": "^3.21.4"
   },
@@ -40,7 +42,10 @@
     "@types/validator": "^13.7.17",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
+    "esbuild": "^0.19.5",
     "eslint": "^8.41.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }

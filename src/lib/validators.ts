@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 
 export const isStringArray = (data: unknown): boolean => {
   const schema = z.array(z.string());

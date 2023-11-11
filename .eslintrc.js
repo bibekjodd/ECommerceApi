@@ -1,19 +1,19 @@
 module.exports = {
   env: {
     es2021: true,
-    node: true,
+    node: true
   },
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
   overrides: [],
-  parser: "@typescript-eslint/parser",
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
+    ecmaVersion: 'latest',
+    sourceType: 'module'
   },
-  plugins: ["@typescript-eslint"],
+  plugins: ['@typescript-eslint'],
   rules: {
-    "@typescript-eslint/ban-ts-comment": "off",
-    "no-var": "off",
-    "prefer-const": "warn",
-  },
+    '@typescript-eslint/ban-ts-comment': 'off',
+    'no-var': 'off',
+    'prefer-const': 'warn'
+  }
 };

@@ -1,10 +1,32 @@
-import mongoose from "mongoose";
-import ApiFeatures from "../lib/apiFeatures";
-import { CustomError } from "../lib/customError";
-import { catchAsyncError } from "../middlewares/catchAsyncError";
-import Product from "../models/product.model";
-import { GetProductsQuery } from "../types/product";
+import mongoose from 'mongoose';
+import ApiFeatures from '../lib/apiFeatures';
+import { CustomError } from '../lib/customError';
+import { catchAsyncError } from '../middlewares/catchAsyncError';
+import Product from '../models/product.model';
 
+export type GetProductsQuery = Partial<{
+  title: string;
+  price: Partial<{
+    gt: string;
+    gte: string;
+    lte: string;
+    lt: string;
+  }>;
+  ratings: Partial<{
+    gt: string;
+    gte: string;
+    lte: string;
+    lt: string;
+  }>;
+  page: string;
+  pageSize: string;
+  category: string;
+  offer: 'hotoffers' | 'sales';
+  orderby: string;
+  brand: string;
+  featured: string;
+  owner: string;
+}>;
 export const getAllProducts = catchAsyncError<
   unknown,
   unknown,
@@ -19,7 +41,7 @@ export const getAllProducts = catchAsyncError<
     return res.json({
       totalResults: 0,
       total: 0,
-      products: [],
+      products: []
     });
   }
 
@@ -34,21 +56,21 @@ export const getAllProducts = catchAsyncError<
   return res.json({
     totalResults: products.length,
     total: totalProducts,
-    products,
+    products
   });
 });
 
 export const getProductDetails = catchAsyncError<{ id: string }>(
   async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).json({ message: "Invalid Product Id" });
+      return res.status(400).json({ message: 'Invalid Product Id' });
     }
     const product = await Product.findById(req.params.id)
-      .populate("owner")
-      .populate("reviews");
+      .populate('owner')
+      .populate('reviews');
 
     if (!product)
-      throw new CustomError("Product with this id doens't exist", 400);
+      throw new CustomError("Product with this id doesn't exist", 400);
 
     return res.json({ product });
   }

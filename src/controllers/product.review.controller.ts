@@ -1,20 +1,26 @@
-import { CustomError } from "../lib/customError";
-import { catchAsyncError } from "../middlewares/catchAsyncError";
-import Product from "../models/product.model";
-import Review from "../models/review.model";
-import { createOrUpdateReviewBody } from "../types/review";
+import { CustomError } from '../lib/customError';
+import { catchAsyncError } from '../middlewares/catchAsyncError';
+import Product from '../models/product.model';
+import Review from '../models/review.model';
 
+type createOrUpdateReviewBody = Partial<{
+  rating: number;
+  comment: string;
+  productId: string;
+  title: string;
+}>;
 export const createOrUpdateReview = catchAsyncError<
   unknown,
   unknown,
   createOrUpdateReviewBody
 >(async (req, res) => {
   const { rating, comment, productId, title } = req.body;
-  if (!productId) throw new CustomError("Product id is needed for review!");
+  if (!productId)
+    throw new CustomError('Product id is needed for review!', 400);
 
   let review = await Review.findOne({
     product: productId,
-    user: req.user._id.toString(),
+    user: req.user._id.toString()
   });
 
   let reviewExists = false;
@@ -25,7 +31,7 @@ export const createOrUpdateReview = catchAsyncError<
       rating,
       title,
       product: productId,
-      user: req.user._id.toString(),
+      user: req.user._id.toString()
     });
   } else {
     reviewExists = true;
@@ -38,8 +44,8 @@ export const createOrUpdateReview = catchAsyncError<
   await Product.updateOnReviewChange(productId);
 
   return res.json({
-    message: reviewExists ? "Product Review Updated" : "Product Reviewed",
-    review,
+    message: reviewExists ? 'Product Review Updated' : 'Product Reviewed',
+    review
   });
 });
 
@@ -53,8 +59,8 @@ export const getProductReviews = catchAsyncError<
   if (!product) throw new CustomError("Product doesn't exist", 400);
 
   const reviews = await Review.find({ product: req.query.id }).populate(
-    "user",
-    "name email avatar"
+    'user',
+    'name email avatar'
   );
 
   return res.json({ total: reviews.length, reviews });
@@ -67,15 +73,15 @@ export const deleteProductReview = catchAsyncError<
   { id?: string }
 >(async (req, res) => {
   const review = await Review.findById(req.query.id);
-  if (!review) throw new CustomError("Review already deleted", 200);
+  if (!review) throw new CustomError('Review already deleted', 200);
   if (
     req.user._id.toString() !== review.user._id.toString() &&
-    req.user.role !== "admin"
+    req.user.role !== 'admin'
   )
-    throw new CustomError("Must be reviewer to delete review", 400);
+    throw new CustomError('Must be reviewer to delete review', 400);
 
   await review.deleteOne();
   await Product.updateOnReviewChange(review?.product.toString());
 
-  return res.json({ message: "Review deleted successfully" });
+  return res.json({ message: 'Review deleted successfully' });
 });

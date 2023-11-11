@@ -1,31 +1,25 @@
-import { catchAsyncError } from "../middlewares/catchAsyncError";
-import User from "../models/user.model";
-import { CustomError } from "../lib/customError";
-import sendToken, { cookieOptions } from "../lib/sendToken";
-import sendEmail from "../lib/sendMail";
-import crypto from "crypto";
-import { uploadImage } from "../lib/cloudinary";
-import {
-  LoginUserBody,
-  RegisterUserBody,
-  UpdateProfileBody,
-} from "../types/user";
+import { uploadImage } from '../lib/cloudinary';
+import { CustomError } from '../lib/customError';
+import sendEmail from '../lib/sendMail';
+import sendToken, { cookieOptions } from '../lib/sendToken';
+import { catchAsyncError } from '../middlewares/catchAsyncError';
+import User from '../models/user.model';
 
-/**
- * register user api
- *
- * `avatar` must be passed as datauri
- */
+type RegisterUserBody = Partial<{
+  name: string;
+  email: string;
+  password: string;
+  avatar: string;
+}>;
 export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
   async (req, res) => {
     const { name, email, password, avatar } = req.body;
-
     if (!name || !email || !password)
-      throw new CustomError("Please Enter the required fields", 400);
+      throw new CustomError('Please Enter the required fields', 400);
 
     const userExists = await User.findOne({ email });
     if (userExists)
-      throw new CustomError("User with same email already exists", 400);
+      throw new CustomError('User with same email already exists', 400);
 
     const user = await User.create({ name, email, password });
     if (avatar) {
@@ -33,7 +27,7 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
       if (res) {
         user.avatar = {
           public_id: res.public_id,
-          url: res.url,
+          url: res.url
         };
       }
       await user.save();
@@ -43,21 +37,22 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
   }
 );
 
-/**
- * Login api. Sends the token to user
- */
+type LoginUserBody = Partial<{
+  email: string;
+  password: string;
+}>;
 export const loginUser = catchAsyncError<unknown, unknown, LoginUserBody>(
   async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password)
-      throw new CustomError("Please enter required credintials", 400);
+      throw new CustomError('Please enter required credintials', 400);
 
-    const user = await User.findOne({ email }).select("+password");
-    if (!user) throw new CustomError("Invalid user credintials", 400);
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) throw new CustomError('Invalid user credintials', 400);
 
-    const isMatch = await user.comparePassword(password || "");
-    if (!isMatch) throw new CustomError("Invalid user credintials", 400);
+    const isMatch = await user.comparePassword(password || '');
+    if (!isMatch) throw new CustomError('Invalid user credintials', 400);
 
     sendToken(user, res, 200);
   }
@@ -76,16 +71,14 @@ export const getUserDetails = catchAsyncError(async (req, res) => {
 export const logout = catchAsyncError(async (req, res) => {
   return res
     .status(200)
-    .cookie("token", "token", cookieOptions)
-    .json({ message: "Logged out successfully" });
+    .cookie('token', 'token', cookieOptions)
+    .json({ message: 'Logged out successfully' });
 });
 
 export const deleteProfile = catchAsyncError(async (req, res) => {
   await req.user.deleteOne();
 
-  return res
-    .status(200)
-    .json({ message: "Your profile is deleted successfully" });
+  return res.json({ message: 'Your profile is deleted successfully' });
 });
 
 interface ForgotPasswordBody {
@@ -97,20 +90,20 @@ export const forgotPassword = catchAsyncError<
   ForgotPasswordBody
 >(async (req, res) => {
   const { email } = req.body;
-  if (!email) throw new CustomError("Please provide your email", 400);
+  if (!email) throw new CustomError('Please provide your email', 400);
   const user = await User.findOne({ email });
   if (!user) throw new CustomError("User with this email doesn't exist", 400);
 
   const token = user.getResetPasswordToken();
   await user.save();
-  const subject = "ECommerce Api Password Reset";
-  const link = `${req.get("origin")}/password/reset/${token}`;
+  const subject = 'ECommerce Api Password Reset';
+  const link = `${req.get('origin')}/password/reset/${token}`;
   const message = `Click on this link to reset password. <br>
   <a href=${link}>${link}</a>
   `;
 
   await sendEmail({ mail: email, text: message, subject });
-  return res.json({ message: "Password Recovery sent to mail", token });
+  return res.json({ message: 'Password Recovery sent to mail', token });
 });
 
 export const resetPassword = catchAsyncError<
@@ -118,17 +111,18 @@ export const resetPassword = catchAsyncError<
   unknown,
   { password?: string }
 >(async (req, res) => {
-  const token = req.params.token;
-  const resetToken = crypto.createHash("sha256").update(token).digest("hex");
+  // const token = req.params.token;
+  // const resetToken = crypto.createHash('sha256').update(token).digest('hex');
+  const resetToken = 'todo';
   const user = await User.findOne({
     resetPasswordToken: resetToken,
-    resetPasswordExpire: { $gt: Date.now() },
+    resetPasswordExpire: { $gt: Date.now() }
   });
 
-  if (!user) throw new CustomError("Token is invalid or expired", 400);
+  if (!user) throw new CustomError('Token is invalid or expired', 400);
 
   const { password } = req.body;
-  if (!password) throw new CustomError("Please provide password", 400);
+  if (!password) throw new CustomError('Please provide password', 400);
   user.password = password;
   user.resetPasswordExpire = undefined;
   user.resetPasswordToken = undefined;
@@ -146,17 +140,23 @@ export const updatePassword = catchAsyncError<
   const { oldPassword, newPassword } = req.body;
 
   if (!oldPassword || !newPassword)
-    throw new CustomError("Please enter required fields", 400);
+    throw new CustomError('Please enter required fields', 400);
 
   const isMatch = await req.user.comparePassword(oldPassword);
-  if (!isMatch) throw new CustomError("Incorrect old password", 400);
+  if (!isMatch) throw new CustomError('Incorrect old password', 400);
 
   req.user.password = newPassword;
   await req.user.save();
 
-  return res.json({ message: "Password updated successfully" });
+  return res.json({ message: 'Password updated successfully' });
 });
 
+type UpdateProfileBody = Partial<{
+  name: string;
+  email: string;
+  avatar: string;
+  password: string;
+}>;
 export const updateProfile = catchAsyncError<
   unknown,
   unknown,
@@ -174,7 +174,7 @@ export const updateProfile = catchAsyncError<
       if (res) {
         req.user.avatar = {
           public_id: res.public_id,
-          url: res.url,
+          url: res.url
         };
       }
     } catch (err) {
@@ -184,7 +184,7 @@ export const updateProfile = catchAsyncError<
   await req.user.save();
   return res.json({
     message: `Profile updated successfully ${
-      uploadFailed ? "but avatar could not be updated" : ""
-    }`,
+      uploadFailed ? 'but avatar could not be updated' : ''
+    }`
   });
 });

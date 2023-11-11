@@ -1,11 +1,12 @@
-import { CookieOptions, Response } from "express";
-import { TUser } from "../models/user.model";
+import type { CookieOptions, Response } from 'express';
+import { type TUser } from '../models/user.model';
+import { env } from '../config/env.config';
 
 export const cookieOptions: CookieOptions = {
   maxAge: Date.now() + 30 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  secure: process.env.NODE_ENV !== "production" ? false : true,
-  sameSite: process.env.NODE_ENV !== "production" ? "lax" : "none",
+  secure: env.NODE_ENV !== 'production' ? false : true,
+  sameSite: env.NODE_ENV !== 'production' ? 'lax' : 'none'
 };
 
 /**
@@ -16,13 +17,13 @@ const sendToken = (
   res: Response,
   statusCode?: number
 ) => {
-  const token = user.generateToken ? user.generateToken() : "";
+  const token = user.generateToken ? user.generateToken() : '';
 
   user.password = undefined;
 
   res
     .status(statusCode || 200)
-    .cookie("token", token, cookieOptions)
+    .cookie('token', token, cookieOptions)
     .json({ user });
 };
 

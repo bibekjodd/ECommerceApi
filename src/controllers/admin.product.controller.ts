@@ -1,10 +1,12 @@
-import { catchAsyncError } from "../middlewares/catchAsyncError";
-import Product from "../models/product.model";
-import { CustomError } from "../lib/customError";
-import { deleteImage, uploadImage } from "../lib/cloudinary";
-import { CreateProductBody, UpdateProductBody } from "../types/product";
-import { isNumberArray, isStringArray } from "../lib/validators";
+import { uploadImage } from '../lib/cloudinary';
+import { CustomError } from '../lib/customError';
+import { isStringArray } from '../lib/validators';
+import { catchAsyncError } from '../middlewares/catchAsyncError';
+import Product, { type IProduct } from '../models/product.model';
 
+export type CreateProductBody = Omit<Partial<IProduct>, 'images'> & {
+  images?: string[];
+};
 export const createProduct = catchAsyncError<
   unknown,
   unknown,
@@ -13,7 +15,7 @@ export const createProduct = catchAsyncError<
   const { images, ...productDetails } = req.body;
   let product = new Product({
     ...productDetails,
-    owner: req.user._id,
+    owner: req.user._id
   });
 
   if (images && isStringArray(images)) {
@@ -22,7 +24,7 @@ export const createProduct = catchAsyncError<
       if (res)
         product.images.push({
           public_id: res.public_id,
-          url: res.url,
+          url: res.url
         });
     }
   }
@@ -31,9 +33,15 @@ export const createProduct = catchAsyncError<
 
   return res
     .status(201)
-    .json({ product, message: "Product created successfully" });
+    .json({ product, message: 'Product created successfully' });
 });
 
+type UpdateProductBody = Omit<Partial<IProduct>, 'images'> & {
+  images?: {
+    indexesToDelete?: Array<number>;
+    add?: string[];
+  };
+};
 export const updateProduct = catchAsyncError<
   { id: string },
   unknown,
@@ -48,36 +56,16 @@ export const updateProduct = catchAsyncError<
     product[key] = productDetails[key];
   }
 
-  if (
-    images &&
-    images.add &&
-    images.indexesToDelete &&
-    isStringArray(images.add) &&
-    isNumberArray(images.add)
-  ) {
-    let delIndex = 0;
-    for (const image of images.add.slice(0, 5)) {
-      await deleteImage(
-        product.images[images.indexesToDelete[delIndex]]?.public_id || ""
-      );
-      const res = await uploadImage(image);
-      if (res) {
-        product.images[images.indexesToDelete[delIndex]].public_id =
-          res.public_id;
-        product.images[images.indexesToDelete[delIndex]].url = res.url;
-      }
-    }
-    delIndex++;
-  }
+  // todo: update images
 
   await product.save();
-  return res.json({ message: "Product updated successfully" });
+  return res.json({ message: 'Product updated successfully' });
 });
 
 export const deleteProduct = catchAsyncError<{ id: string }>(
   async (req, res) => {
     await Product.findByIdAndDelete(req.params.id);
 
-    return res.json({ message: "Product deleted successfully" });
+    return res.json({ message: 'Product deleted successfully' });
   }
 );
