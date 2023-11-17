@@ -4,7 +4,7 @@ export type IReview = {
   _id: Types.ObjectId;
   createdAt: NativeDate;
   updatedAt: NativeDate;
-  user: Types.ObjectId;
+  reviewer: Types.ObjectId;
   title?: string;
   rating: number;
   comment?: string;
@@ -12,7 +12,7 @@ export type IReview = {
 };
 const reviewSchema = new Schema<IReview, Model<IReview>>(
   {
-    user: {
+    reviewer: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true

@@ -1,7 +1,6 @@
-import { Types, model, Model, Schema, Document, Query } from 'mongoose';
-import { updateOnReviewChange } from '@/lib/statics/updateOnReviewChange';
+import { Document, Model, Query, Schema, Types, model } from 'mongoose';
 
-export type IProduct = {
+export type ProductSchema = {
   _id: Types.ObjectId;
   createdAt: NativeDate;
   updatedAt: NativeDate;
@@ -14,10 +13,9 @@ export type IProduct = {
   discountRate: number;
   ratings: number;
   tags: Types.Array<string>;
-  ram?: number;
   sizes: Types.Array<string>;
   colors: Types.DocumentArray<Color>;
-  images: Types.DocumentArray<Image>;
+  image: Image;
   category: string;
   stock: number;
   numOfReviews: number;
@@ -26,7 +24,7 @@ export type IProduct = {
 type Color = { code: string; value: string };
 type Image = { public_id: string; url: string };
 
-const productSchema = new Schema<IProduct, Model<IProduct>>(
+const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
   {
     title: {
       type: String,
@@ -78,7 +76,6 @@ const productSchema = new Schema<IProduct, Model<IProduct>>(
         return value.slice(0, 5);
       }
     },
-    ram: { type: Number, min: 0 },
     sizes: {
       type: [
         {
@@ -103,16 +100,9 @@ const productSchema = new Schema<IProduct, Model<IProduct>>(
         return value.slice(0, 5);
       }
     },
-    images: {
-      type: [
-        {
-          public_id: String,
-          url: String
-        }
-      ],
-      transform: (value: Image[]) => {
-        return value.slice(0, 5);
-      }
+    image: {
+      url: String,
+      public_id: String
     },
     category: {
       type: String,
@@ -141,17 +131,12 @@ const productSchema = new Schema<IProduct, Model<IProduct>>(
   { timestamps: true }
 );
 
-productSchema.statics.updateOnReviewChange = updateOnReviewChange;
+export type TProduct = Document & ProductSchema;
 
-export type TProduct = Document & IProduct;
-type ProductStatics = {
-  updateOnReviewChange: (productId: string) => Promise<void>;
-};
-
-const Product = model<IProduct, Model<IProduct> & ProductStatics>(
+const Product = model<ProductSchema, Model<ProductSchema>>(
   'Product',
   productSchema
 );
 export default Product;
 
-export type QueryProduct = Query<IProduct[], IProduct>;
+export type QueryProduct = Query<ProductSchema[], ProductSchema>;

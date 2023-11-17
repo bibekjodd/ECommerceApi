@@ -1,11 +1,11 @@
-import { Schema, model, Types, type Model, type Document } from 'mongoose';
-import bcrypt from 'bcryptjs';
-import validator from 'validator';
-import jwt from 'jsonwebtoken';
-// import crypto from 'crypto';
 import { env } from '@/config/env.config';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
+import { Schema, Types, model, type Document, type Model } from 'mongoose';
+import validator from 'validator';
 
-export type IUser = {
+export type UserSchema = {
   _id: Types.ObjectId;
   name: string;
   email: string;
@@ -28,7 +28,7 @@ type UserMethods = {
   getResetPasswordToken: () => string;
 };
 
-const userSchema = new Schema<IUser, Model<IUser>, UserMethods>(
+const userSchema = new Schema<UserSchema, Model<UserSchema>, UserMethods>(
   {
     name: {
       type: String,
@@ -67,7 +67,7 @@ const userSchema = new Schema<IUser, Model<IUser>, UserMethods>(
     role: { type: String, default: 'user' },
 
     resetPasswordToken: String,
-    resetPasswordExpire: Date
+    resetPasswordExpire: Number
   },
   { timestamps: true }
 );
@@ -90,12 +90,11 @@ userSchema.methods.generateToken = function () {
 };
 
 userSchema.methods.getResetPasswordToken = function () {
-  // const token = crypto.randomBytes(20).toString('hex');
-  // this.resetPasswordToken = crypto
-  //   .createHash('sha256')
-  //   .update(token)
-  //   .digest('hex');
-  const token = 'todo';
+  const token = crypto.randomBytes(20).toString('hex');
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex');
   this.resetPasswordExpire = Date.now() + 15 * 60 * 60 * 1000;
   return token;
 };
@@ -103,4 +102,4 @@ userSchema.methods.getResetPasswordToken = function () {
 const User = model('User', userSchema);
 export default User;
 
-export type TUser = IUser & UserMethods & Document;
+export type TUser = UserSchema & UserMethods & Document<Types.ObjectId>;

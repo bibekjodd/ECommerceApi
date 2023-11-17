@@ -1,5 +1,5 @@
-import {connect} from 'mongoose';
-import devConsole from '@/lib/devConsole';
+import devConsole from '@/lib/dev-console';
+import { connect } from 'mongoose';
 import { env } from './env.config';
 
 export default async function connectDatabase() {

@@ -1,8 +1,9 @@
-import {isValidObjectId} from 'mongoose';
-import ApiFeatures from '@/lib/apiFeatures';
-import { CustomError } from '@/lib/customError';
-import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import ApiFeatures from '@/lib/api-features';
+import { CustomError } from '@/lib/custom-error';
+import { catchAsyncError } from '@/middlewares/catch-async-error';
 import Product from '@/models/product.model';
+import Review from '@/models/review.model';
+import { isValidObjectId } from 'mongoose';
 
 export type GetProductsQuery = Partial<{
   title: string;
@@ -24,7 +25,7 @@ export type GetProductsQuery = Partial<{
   offer: 'hotoffers' | 'sales';
   orderby: string;
   brand: string;
-  featured: string;
+  featured: 'true';
   owner: string;
 }>;
 export const getAllProducts = catchAsyncError<
@@ -40,22 +41,25 @@ export const getAllProducts = catchAsyncError<
   if (invalidOwner) {
     return res.json({
       totalResults: 0,
-      total: 0,
+      totalProducts: 0,
       products: []
     });
   }
 
-  apiFeature.search().filter().order().paginate();
-  const products = await apiFeature.result;
-
-  const totalProducts = await new ApiFeatures(Product.find(), req.query)
+  apiFeature.runAllQueries();
+  const countTotalProducts = new ApiFeatures(Product.find(), req.query)
     .search()
     .filter()
     .countTotalProducts();
 
+  const [products, totalProducts] = await Promise.all([
+    apiFeature.result,
+    countTotalProducts
+  ]);
+
   return res.json({
     totalResults: products.length,
-    total: totalProducts,
+    totalProducts,
     products
   });
 });
@@ -65,13 +69,16 @@ export const getProductDetails = catchAsyncError<{ id: string }>(
     if (!isValidObjectId(req.params.id)) {
       return res.status(400).json({ message: 'Invalid Product Id' });
     }
-    const product = await Product.findById(req.params.id)
-      .populate('owner')
-      .populate('reviews');
+    const getProduct = Product.findById(req.params.id).populate('owner').lean();
+    const getReview = Review.find({ product: req.params.id })
+      .populate('reviewer')
+      .lean();
+
+    const [product, reviews] = await Promise.all([getProduct, getReview]);
 
     if (!product)
       throw new CustomError("Product with this id doesn't exist", 400);
 
-    return res.json({ product });
+    return res.json({ product: { ...product, reviews } });
   }
 );

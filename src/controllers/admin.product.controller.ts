@@ -1,32 +1,26 @@
-import { uploadImage } from '@/lib/cloudinary';
-import { CustomError } from '@/lib/customError';
-import { isStringArray } from '@/lib/validators';
-import { catchAsyncError } from '@/middlewares/catchAsyncError';
-import Product, { type IProduct } from '@/models/product.model';
+import { uploadProductImage } from '@/lib/image-services';
+import { CustomError } from '@/lib/custom-error';
+import { cascadeOnDeleteProduct } from '@/lib/db-actions';
+import { catchAsyncError } from '@/middlewares/catch-async-error';
+import Product, { type TProduct } from '@/models/product.model';
 
-export type CreateProductBody = Omit<Partial<IProduct>, 'images'> & {
-  images?: string[];
+export type CreateProductBody = Partial<TProduct> & {
+  imageDataUri?: string;
 };
 export const createProduct = catchAsyncError<
   unknown,
   unknown,
   CreateProductBody
 >(async (req, res) => {
-  const { images, ...productDetails } = req.body;
+  const { imageDataUri, ...productDetails } = req.body;
   let product = new Product({
     ...productDetails,
     owner: req.user._id
   });
 
-  if (images && isStringArray(images)) {
-    for (const image of images.slice(0, 5)) {
-      const res = await uploadImage(image);
-      if (res)
-        product.images.push({
-          public_id: res.public_id,
-          url: res.url
-        });
-    }
+  if (imageDataUri) {
+    const res = await uploadProductImage(imageDataUri);
+    if (res) product.image = res;
   }
 
   product = await product.save();
@@ -36,11 +30,8 @@ export const createProduct = catchAsyncError<
     .json({ product, message: 'Product created successfully' });
 });
 
-type UpdateProductBody = Omit<Partial<IProduct>, 'images'> & {
-  images?: {
-    indexesToDelete?: Array<number>;
-    add?: string[];
-  };
+type UpdateProductBody = Partial<TProduct> & {
+  imageDataUri?: string;
 };
 export const updateProduct = catchAsyncError<
   { id: string },
@@ -49,23 +40,38 @@ export const updateProduct = catchAsyncError<
 >(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) throw new CustomError("Product doesn't exist", 400);
-
-  const { images, ...productDetails } = req.body;
-  for (const key of Object.keys(productDetails)) {
-    // @ts-ignore
-    product[key] = productDetails[key];
+  const { imageDataUri, ...productDetails } = req.body;
+  if (imageDataUri) {
+    const res = await uploadProductImage(imageDataUri);
+    if (res) product.image = res;
   }
 
-  // todo: update images
+  const validUpdateProperties = [
+    'title',
+    'description',
+    'price',
+    'features',
+    'featured',
+    'brand',
+    'discountRate',
+    'sizes',
+    'tags',
+    'colors',
+    'stock'
+  ];
 
-  await product.save();
+  for (const property of validUpdateProperties) {
+    // @ts-ignore
+    product[property] = productDetails[property] || product[property];
+  }
+
+  await product.save({ validateBeforeSave: true });
   return res.json({ message: 'Product updated successfully' });
 });
 
 export const deleteProduct = catchAsyncError<{ id: string }>(
   async (req, res) => {
-    await Product.findByIdAndDelete(req.params.id);
-
+    await cascadeOnDeleteProduct(req.params.id);
     return res.json({ message: 'Product deleted successfully' });
   }
 );

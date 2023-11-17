@@ -1,4 +1,4 @@
-import { Types, model, Model, Schema } from 'mongoose';
+import { Model, Schema, Types, model } from 'mongoose';
 
 export type IOrder = {
   _id: Types.ObjectId;

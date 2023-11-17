@@ -1,6 +1,6 @@
-import { type FilterQuery, isValidObjectId } from 'mongoose';
-import type { QueryProduct, TProduct } from '@/models/product.model';
 import type { GetProductsQuery } from '@/controllers/product.controller';
+import type { QueryProduct, TProduct } from '@/models/product.model';
+import { isValidObjectId, type FilterQuery } from 'mongoose';
 type ProductFilterQuery = FilterQuery<TProduct>;
 
 export default class ApiFeatures {
@@ -13,9 +13,6 @@ export default class ApiFeatures {
     this.query = query;
   }
 
-  /**
-   * find product that matches `title` and `category`
-   */
   search() {
     const filterQuery: ProductFilterQuery = {
       title: {
@@ -42,9 +39,6 @@ export default class ApiFeatures {
     return this.query.owner && !isValidObjectId(this.query.owner);
   }
 
-  /**
-   * filter product by `price` & `rating`
-   */
   filter() {
     // --------- filter by price ---------
     if (this.query.price) {
@@ -102,22 +96,20 @@ export default class ApiFeatures {
     return this;
   }
 
-  /**
-   * paginate the result by `page number` and `page size`
-   */
   paginate() {
     const page = Number(this.query.page) || 1;
-
     const pageSize = Number(this.query.pageSize) || 20;
-
     const skip = (page - 1) * pageSize;
-
     this.result = this.result.skip(skip).limit(pageSize).populate('owner');
-
     return this;
   }
 
   async countTotalProducts() {
     return this.result.countDocuments();
+  }
+
+  async runAllQueries() {
+    this.search().filter().order().paginate();
+    return this;
   }
 }

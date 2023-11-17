@@ -1,7 +1,7 @@
-import nodemailer from 'nodemailer';
 import { env } from '@/config/env.config';
+import nodemailer from 'nodemailer';
 
-export default async function sendEmail({
+export default async function sendMail({
   text,
   mail,
   subject

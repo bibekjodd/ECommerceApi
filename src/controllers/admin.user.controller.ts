@@ -1,7 +1,7 @@
-import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import { CustomError } from '@/lib/custom-error';
+import { cascadeOnDeleteUser } from '@/lib/db-actions';
+import { catchAsyncError } from '@/middlewares/catch-async-error';
 import User from '@/models/user.model';
-import { CustomError } from '@/lib/customError';
-import cloudinary from 'cloudinary';
 
 export const getAllUsers = catchAsyncError(async (req, res) => {
   const users = await User.find();
@@ -31,16 +31,9 @@ export const updateUserRole = catchAsyncError<{ id: string }>(
 
 export const deleteUser = catchAsyncError<{ id: string }>(async (req, res) => {
   const user = await User.findById(req.params.id);
-  if (!user) throw new CustomError('User deleted successfully', 200);
+  if (!user)
+    throw new CustomError(`User doesn't exist or already deleted!`, 200);
 
-  const { avatar } = user;
-  await user.deleteOne();
-  res.json({ message: 'User deleted successfully' });
-
-  try {
-    if (avatar?.url?.includes('res.cloudinary'))
-      await cloudinary.v2.uploader.destroy(avatar?.public_id || '');
-  } catch (error) {
-    //
-  }
+  await cascadeOnDeleteUser(user._id.toString(), user.avatar?.public_id);
+  return res.json({ message: 'User deleted successfully' });
 });

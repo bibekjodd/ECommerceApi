@@ -1,9 +1,11 @@
-import { uploadImage } from '@/lib/cloudinary';
-import { CustomError } from '@/lib/customError';
-import sendEmail from '@/lib/sendMail';
-import sendToken, { cookieOptions } from '@/lib/sendToken';
-import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import { CustomError } from '@/lib/custom-error';
+import { cascadeOnDeleteUser } from '@/lib/db-actions';
+import { uploadProductImage } from '@/lib/image-services';
+import sendMail from '@/lib/send-mail';
+import { cookieOptions, filterUser } from '@/lib/utils';
+import { catchAsyncError } from '@/middlewares/catch-async-error';
 import User from '@/models/user.model';
+import crypto from 'crypto';
 
 type RegisterUserBody = Partial<{
   name: string;
@@ -23,7 +25,7 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
 
     const user = await User.create({ name, email, password });
     if (avatar) {
-      const res = await uploadImage(avatar);
+      const res = await uploadProductImage(avatar);
       if (res) {
         user.avatar = {
           public_id: res.public_id,
@@ -33,7 +35,11 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
       await user.save();
     }
 
-    sendToken(user, res, 201);
+    const token = user.generateToken();
+    return res
+      .cookie('token', token, cookieOptions)
+      .status(201)
+      .json({ user: filterUser(user) });
   }
 );
 
@@ -54,20 +60,17 @@ export const loginUser = catchAsyncError<unknown, unknown, LoginUserBody>(
     const isMatch = await user.comparePassword(password || '');
     if (!isMatch) throw new CustomError('Invalid user credintials', 400);
 
-    sendToken(user, res, 200);
+    const token = user.generateToken();
+    return res
+      .cookie('token', token, cookieOptions)
+      .json({ user: filterUser(user) });
   }
 );
 
-/**
- * Get My Profile Api
- */
-export const getUserDetails = catchAsyncError(async (req, res) => {
-  return res.json({ user: req.user });
+export const getUserProfile = catchAsyncError(async (req, res) => {
+  return res.json({ user: filterUser(req.user) });
 });
 
-/**
- * logout api
- */
 export const logout = catchAsyncError(async (req, res) => {
   return res
     .status(200)
@@ -76,9 +79,11 @@ export const logout = catchAsyncError(async (req, res) => {
 });
 
 export const deleteProfile = catchAsyncError(async (req, res) => {
-  await req.user.deleteOne();
-
-  return res.json({ message: 'Your profile is deleted successfully' });
+  res.json({ message: 'Your profile is deleted successfully' });
+  await cascadeOnDeleteUser(
+    req.user._id.toString(),
+    req.user.avatar?.public_id
+  );
 });
 
 interface ForgotPasswordBody {
@@ -102,8 +107,8 @@ export const forgotPassword = catchAsyncError<
   <a href=${link}>${link}</a>
   `;
 
-  await sendEmail({ mail: email, text: message, subject });
-  return res.json({ message: 'Password Recovery sent to mail', token });
+  res.json({ message: 'Password Recovery sent to mail', token });
+  await sendMail({ mail: email, text: message, subject });
 });
 
 export const resetPassword = catchAsyncError<
@@ -111,9 +116,10 @@ export const resetPassword = catchAsyncError<
   unknown,
   { password?: string }
 >(async (req, res) => {
-  // const token = req.params.token;
-  // const resetToken = crypto.createHash('sha256').update(token).digest('hex');
-  const resetToken = 'todo';
+  const resetToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
   const user = await User.findOne({
     resetPasswordToken: resetToken,
     resetPasswordExpire: { $gt: Date.now() }
@@ -128,7 +134,10 @@ export const resetPassword = catchAsyncError<
   user.resetPasswordToken = undefined;
   await user.save();
 
-  sendToken(user, res, 200);
+  const token = user.generateToken();
+  return res
+    .cookie('token', token, cookieOptions)
+    .json({ user: filterUser(user) });
 });
 
 type UpdatePasswordBody = { oldPassword: string; newPassword: string };
@@ -155,22 +164,20 @@ type UpdateProfileBody = Partial<{
   name: string;
   email: string;
   avatar: string;
-  password: string;
 }>;
 export const updateProfile = catchAsyncError<
   unknown,
   unknown,
   UpdateProfileBody
 >(async (req, res) => {
-  const { name, email, avatar, password } = req.body;
+  const { name, email, avatar } = req.body;
   if (name) req.user.name = name;
   if (email) req.user.email = email;
-  if (password) req.user.password = password;
 
   let uploadFailed = false;
   if (avatar) {
     try {
-      const res = await uploadImage(avatar);
+      const res = await uploadProductImage(avatar);
       if (res) {
         req.user.avatar = {
           public_id: res.public_id,
@@ -185,6 +192,7 @@ export const updateProfile = catchAsyncError<
   return res.json({
     message: `Profile updated successfully ${
       uploadFailed ? 'but avatar could not be updated' : ''
-    }`
+    }`,
+    user: filterUser(req.user)
   });
 });

@@ -1,16 +1,16 @@
-import { Router } from 'express';
-import { isAuthenticatedUser } from '@/middlewares/auth';
 import {
   createOrUpdateReview,
   deleteProductReview,
   getProductReviews
-} from '@/controllers/product.review.controller';
+} from '@/controllers/review.controller';
+import { isAuthenticatedUser } from '@/middlewares/auth';
+import { Router } from 'express';
 
 const router = Router();
 
 router
   .route('/review')
-  .put(isAuthenticatedUser, createOrUpdateReview)
+  .post(isAuthenticatedUser, createOrUpdateReview)
   .get(getProductReviews)
   .delete(isAuthenticatedUser, deleteProductReview);
 

@@ -1,10 +1,10 @@
-import cloudinary from 'cloudinary';
+import { configureImageUploader } from '@/lib/image-services';
+import { catchAsyncError } from '@/middlewares/catch-async-error';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
-import { env } from './env.config';
 import connectDatabase from './database';
-import { catchAsyncError } from '@/middlewares/catchAsyncError';
+import { env } from './env.config';
 
 export const initialConfig = (app: Express) => {
   connectDatabase();
@@ -18,12 +18,7 @@ export const initialConfig = (app: Express) => {
     })
   );
   app.enable('trust proxy');
-
-  cloudinary.v2.config({
-    api_key: env.CLOUDINARY_API_KEY,
-    api_secret: env.CLOUDINARY_API_SECRET,
-    cloud_name: env.CLOUDINARY_API_CLOUD_NAME
-  });
+  configureImageUploader();
 
   app.get('/', (req, res) => {
     return res.json({

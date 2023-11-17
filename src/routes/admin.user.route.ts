@@ -9,9 +9,9 @@ import {
 const router = Router();
 
 // ---------------------- Admin User Routes ----------------------
-router.route('/admin/users').get(isAuthenticatedUser, isAdmin, getAllUsers);
+router.route('/users').get(isAuthenticatedUser, isAdmin, getAllUsers);
 router
-  .route('/admin/user/:id')
+  .route('/user/:id')
   .get(isAuthenticatedUser, isAdmin, getSingleUser)
   .put(isAuthenticatedUser, isAdmin, updateUserRole)
   .delete(isAuthenticatedUser, isAdmin, deleteUser);
