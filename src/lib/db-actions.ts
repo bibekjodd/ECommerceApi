@@ -24,7 +24,7 @@ export const updateProductOnReviewChange = async (productId: string) => {
     if (product) {
       product.numOfReviews = numOfReviews;
       product.ratings = ratings;
-      await product.save();
+      await product.save({ validateBeforeSave: true });
     }
   }
 };

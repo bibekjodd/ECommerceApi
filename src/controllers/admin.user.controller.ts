@@ -23,7 +23,7 @@ export const updateUserRole = catchAsyncError<{ id: string }>(
     if (!user) throw new CustomError("User with this id doesn't exist", 400);
 
     user.role = user.role === 'admin' ? 'user' : 'admin';
-    await user.save();
+    await user.save({ validateBeforeSave: true });
 
     return res.json({ message: 'User role updated successfully' });
   }
@@ -34,6 +34,6 @@ export const deleteUser = catchAsyncError<{ id: string }>(async (req, res) => {
   if (!user)
     throw new CustomError(`User doesn't exist or already deleted!`, 200);
 
-  await cascadeOnDeleteUser(user._id.toString(), user.avatar?.public_id);
+  await cascadeOnDeleteUser(user._id.toString(), user.image_public_id);
   return res.json({ message: 'User deleted successfully' });
 });

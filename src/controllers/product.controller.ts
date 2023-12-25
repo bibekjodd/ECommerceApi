@@ -69,9 +69,13 @@ export const getProductDetails = catchAsyncError<{ id: string }>(
     if (!isValidObjectId(req.params.id)) {
       return res.status(400).json({ message: 'Invalid Product Id' });
     }
-    const getProduct = Product.findById(req.params.id).populate('owner').lean();
+    const getProduct = Product.findById(req.params.id)
+      .populate('owner', 'name email image')
+      .lean();
     const getReview = Review.find({ product: req.params.id })
-      .populate('reviewer')
+      .populate('reviewer', 'name email image')
+      .limit(10)
+      .sort({ createdAt: -1 })
       .lean();
 
     const [product, reviews] = await Promise.all([getProduct, getReview]);

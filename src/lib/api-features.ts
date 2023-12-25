@@ -41,7 +41,7 @@ export default class ApiFeatures {
 
   filter() {
     // --------- filter by price ---------
-    if (this.query.price) {
+    if (this.query.price && typeof this.query.price === 'object') {
       let queryString = JSON.stringify(this.query.price);
       queryString = queryString.replace('gt', '$gt');
       queryString = queryString.replace('lt', '$lt');
@@ -55,7 +55,7 @@ export default class ApiFeatures {
     }
 
     // --------- filter by ratings ---------
-    if (this.query.ratings) {
+    if (this.query.ratings && typeof this.query.ratings === 'object') {
       let queryString = JSON.stringify(this.query.ratings);
       queryString = queryString.replace('gt', '$gt');
       queryString = queryString.replace('lt', '$lt');

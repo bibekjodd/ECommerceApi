@@ -8,7 +8,7 @@ export type ProductSchema = {
   description: Types.Array<string>;
   price: number;
   featured: boolean;
-  features: Types.Array<string>;
+  features: Types.DocumentArray<{ title: string; text: string }>;
   brand?: string;
   discountRate: number;
   ratings: number;
@@ -40,8 +40,10 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
           maxlength: [500, 'Too long product description!']
         }
       ],
-      transform: (value: string[]) => {
-        return value.slice(0, 10);
+      transform: (description: string[]) => {
+        description = description.slice(0, 10);
+        description = description.map((value) => value.trim().slice(0, 200));
+        return description;
       }
     },
     price: {
@@ -54,9 +56,19 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
       default: false
     },
     features: {
-      type: [{ type: String, trim: true }],
-      transform: (value: string[]) => {
-        return value.slice(0, 10);
+      type: [
+        {
+          title: { type: String, required: true },
+          text: { type: String, required: true }
+        }
+      ],
+      transform: (value: { title: string; text: string }[]) => {
+        value = value.slice(0, 10);
+        value = value.map((feature) => ({
+          title: feature.title.trim().slice(0, 20),
+          text: feature.title.trim().slice(0, 50)
+        }));
+        return value;
       }
     },
     brand: { type: String, trim: true, lowercase: true },

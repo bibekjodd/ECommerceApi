@@ -23,7 +23,7 @@ export const createProduct = catchAsyncError<
     if (res) product.image = res;
   }
 
-  product = await product.save();
+  product = await product.save({ validateBeforeSave: true });
 
   return res
     .status(201)

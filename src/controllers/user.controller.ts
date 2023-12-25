@@ -11,11 +11,11 @@ type RegisterUserBody = Partial<{
   name: string;
   email: string;
   password: string;
-  avatar: string;
+  imageDataUri: string;
 }>;
 export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
   async (req, res) => {
-    const { name, email, password, avatar } = req.body;
+    const { name, email, password, imageDataUri } = req.body;
     if (!name || !email || !password)
       throw new CustomError('Please Enter the required fields', 400);
 
@@ -24,15 +24,13 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
       throw new CustomError('User with same email already exists', 400);
 
     const user = await User.create({ name, email, password });
-    if (avatar) {
-      const res = await uploadProductImage(avatar);
+    if (imageDataUri) {
+      const res = await uploadProductImage(imageDataUri);
       if (res) {
-        user.avatar = {
-          public_id: res.public_id,
-          url: res.url
-        };
+        user.image = res.url;
+        user.image_public_id = res.public_id;
       }
-      await user.save();
+      await user.save({ validateBeforeSave: true });
     }
 
     const token = user.generateToken();
@@ -52,13 +50,13 @@ export const loginUser = catchAsyncError<unknown, unknown, LoginUserBody>(
     const { email, password } = req.body;
 
     if (!email || !password)
-      throw new CustomError('Please enter required credintials', 400);
+      throw new CustomError('Please enter required credentials', 400);
 
     const user = await User.findOne({ email }).select('+password');
-    if (!user) throw new CustomError('Invalid user credintials', 400);
+    if (!user) throw new CustomError('Invalid user credentials', 400);
 
     const isMatch = await user.comparePassword(password || '');
-    if (!isMatch) throw new CustomError('Invalid user credintials', 400);
+    if (!isMatch) throw new CustomError('Invalid user credentials', 400);
 
     const token = user.generateToken();
     return res
@@ -80,10 +78,7 @@ export const logout = catchAsyncError(async (req, res) => {
 
 export const deleteProfile = catchAsyncError(async (req, res) => {
   res.json({ message: 'Your profile is deleted successfully' });
-  await cascadeOnDeleteUser(
-    req.user._id.toString(),
-    req.user.avatar?.public_id
-  );
+  await cascadeOnDeleteUser(req.user._id.toString(), req.user.image_public_id);
 });
 
 interface ForgotPasswordBody {
@@ -100,7 +95,7 @@ export const forgotPassword = catchAsyncError<
   if (!user) throw new CustomError("User with this email doesn't exist", 400);
 
   const token = user.getResetPasswordToken();
-  await user.save();
+  await user.save({ validateBeforeSave: true });
   const subject = 'ECommerce Api Password Reset';
   const link = `${req.get('origin')}/password/reset/${token}`;
   const message = `Click on this link to reset password. <br>
@@ -132,7 +127,7 @@ export const resetPassword = catchAsyncError<
   user.password = password;
   user.resetPasswordExpire = undefined;
   user.resetPasswordToken = undefined;
-  await user.save();
+  await user.save({ validateBeforeSave: true });
 
   const token = user.generateToken();
   return res
@@ -155,7 +150,7 @@ export const updatePassword = catchAsyncError<
   if (!isMatch) throw new CustomError('Incorrect old password', 400);
 
   req.user.password = newPassword;
-  await req.user.save();
+  await req.user.save({ validateBeforeSave: true });
 
   return res.json({ message: 'Password updated successfully' });
 });
@@ -163,35 +158,33 @@ export const updatePassword = catchAsyncError<
 type UpdateProfileBody = Partial<{
   name: string;
   email: string;
-  avatar: string;
+  imageDataUri: string;
 }>;
 export const updateProfile = catchAsyncError<
   unknown,
   unknown,
   UpdateProfileBody
 >(async (req, res) => {
-  const { name, email, avatar } = req.body;
+  const { name, email, imageDataUri } = req.body;
   if (name) req.user.name = name;
   if (email) req.user.email = email;
 
   let uploadFailed = false;
-  if (avatar) {
+  if (imageDataUri) {
     try {
-      const res = await uploadProductImage(avatar);
+      const res = await uploadProductImage(imageDataUri);
       if (res) {
-        req.user.avatar = {
-          public_id: res.public_id,
-          url: res.url
-        };
+        req.user.image = res.url;
+        req.user.image_public_id = res.public_id;
       }
     } catch (err) {
       uploadFailed = true;
     }
   }
-  await req.user.save();
+  await req.user.save({ validateBeforeSave: true });
   return res.json({
     message: `Profile updated successfully ${
-      uploadFailed ? 'but avatar could not be updated' : ''
+      uploadFailed ? 'but image could not be updated' : ''
     }`,
     user: filterUser(req.user)
   });

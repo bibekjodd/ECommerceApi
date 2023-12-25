@@ -3,17 +3,16 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { Schema, Types, model, type Document, type Model } from 'mongoose';
-import validator from 'validator';
+import { z } from 'zod';
 
 export type UserSchema = {
   _id: Types.ObjectId;
   name: string;
   email: string;
   password?: string;
-  avatar?: {
-    public_id?: string;
-    url?: string;
-  };
+  googleId?: string;
+  image?: string;
+  image_public_id?: string;
   emailVerified: boolean;
   role: 'user' | 'admin';
   resetPasswordToken?: string;
@@ -37,15 +36,13 @@ const userSchema = new Schema<UserSchema, Model<UserSchema>, UserMethods>(
       minLength: [4, 'Name must be at least 4 characters'],
       maxLength: [30, 'Name should not exceed 30 characters']
     },
-
     email: {
       type: String,
       required: [true, 'Email is mandatory field'],
       maxLength: [30, 'Email should not exceed 30 characters'],
-      validate: [validator.isEmail, 'Must provide valid email'],
+      validate: [z.string().email().parse, 'Must provide valid email'],
       trim: true
     },
-
     password: {
       type: String,
       required: [true, 'Password is mandatory field'],
@@ -53,19 +50,14 @@ const userSchema = new Schema<UserSchema, Model<UserSchema>, UserMethods>(
       minLength: [6, 'Password must be at least 6 characters'],
       trim: true
     },
-
-    avatar: {
-      public_id: String,
-      url: String
-    },
-
+    image: String,
+    image_public_id: String,
+    googleId: String,
     emailVerified: {
       type: Boolean,
       default: false
     },
-
-    role: { type: String, default: 'user' },
-
+    role: { type: String, default: 'user', enum: ['user', 'admin'] },
     resetPasswordToken: String,
     resetPasswordExpire: Number
   },

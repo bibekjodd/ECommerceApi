@@ -38,9 +38,6 @@ dependencies:
   nodemailer:
     specifier: ^6.9.2
     version: 6.9.7
-  validator:
-    specifier: ^13.9.0
-    version: 13.11.0
   zod:
     specifier: ^3.21.4
     version: 3.22.4
@@ -64,9 +61,6 @@ devDependencies:
   '@types/nodemailer':
     specifier: ^6.4.8
     version: 6.4.14
-  '@types/validator':
-    specifier: ^13.7.17
-    version: 13.11.6
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.59.7
     version: 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.53.0)(typescript@5.2.2)
@@ -489,10 +483,6 @@ packages:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
       '@types/node': 20.9.0
-    dev: true
-
-  /@types/validator@13.11.6:
-    resolution: {integrity: sha512-HUgHujPhKuNzgNXBRZKYexwoG+gHKU+tnfPqjWXFghZAnn73JElicMkuSKJyLGr9JgyA8IgK7fj88IyA9rwYeQ==}
     dev: true
 
   /@types/webidl-conversions@7.0.3:
@@ -2662,11 +2652,6 @@ packages:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
     dev: true
-
-  /validator@13.11.0:
-    resolution: {integrity: sha512-Ii+sehpSfZy+At5nPdnyMhx78fEoPDkR2XW/zimHEL3MyGJQOCQ7WeP20jPYRz7ZCpcKLB21NxuXHF3bxjStBQ==}
-    engines: {node: '>= 0.10'}
-    dev: false
 
   /vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}

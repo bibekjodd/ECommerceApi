@@ -43,7 +43,7 @@ export const createOrUpdateReview = catchAsyncError<
     if (title) review.title = title;
     if (rating) review.rating = rating;
     if (comment) review.comment = comment;
-    await review.save();
+    await review.save({ validateBeforeSave: true });
   }
 
   await updateProductOnReviewChange(productId);
@@ -58,19 +58,20 @@ export const getProductReviews = catchAsyncError<
   unknown,
   unknown,
   unknown,
-  { productId?: string }
+  { productId?: string; page: string }
 >(async (req, res, next) => {
   const { productId } = req.query;
+  let page = Number(req.query.page);
+  if (isNaN(page) || page < 1) page = 1;
+  const skip = (page - 1) * 10;
+
   if (!productId) {
     return next(new CustomError('Please provide product id!'));
   }
-  const product = await Product.findById(req.query.productId);
-  if (!product) throw new CustomError("Product doesn't exist", 400);
-
-  const reviews = await Review.find({ product: productId }).populate(
-    'reviewer',
-    'name email avatar'
-  );
+  const reviews = await Review.find({ product: productId })
+    .populate('reviewer', 'name email image')
+    .sort({ createdAt: -1 })
+    .skip(skip);
 
   return res.json({ total: reviews.length, reviews });
 });
