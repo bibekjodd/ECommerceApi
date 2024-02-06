@@ -1,29 +1,27 @@
 import ApiFeatures from '@/lib/api-features';
-import { CustomError } from '@/lib/custom-error';
+import { NotFoundException } from '@/lib/exceptions';
 import { catchAsyncError } from '@/middlewares/catch-async-error';
 import Product from '@/models/product.model';
-import Review from '@/models/review.model';
 import { isValidObjectId } from 'mongoose';
 
 export type GetProductsQuery = Partial<{
   title: string;
-  price: Partial<{
-    gt: string;
-    gte: string;
-    lte: string;
-    lt: string;
-  }>;
-  ratings: Partial<{
-    gt: string;
-    gte: string;
-    lte: string;
-    lt: string;
-  }>;
+
+  price_gte: string;
+  price_gt: string;
+  price_lte: string;
+  price_lt: string;
+
+  ratings_gte: string;
+  ratings_gt: string;
+  ratings_lte: string;
+  ratings_lt: string;
+
   page: string;
-  pageSize: string;
+  page_size: string;
   category: string;
   offer: 'hotoffers' | 'sales';
-  orderby: string;
+  orderby: 'price_asc' | 'price_desc' | 'ratings_asc' | 'ratings_desc';
   brand: string;
   featured: 'true';
   owner: string;
@@ -35,7 +33,6 @@ export const getAllProducts = catchAsyncError<
   GetProductsQuery
 >(async (req, res) => {
   const apiFeature = new ApiFeatures(Product.find(), { ...req.query });
-
   const invalidOwner = apiFeature.invalidOwner();
 
   if (invalidOwner) {
@@ -69,20 +66,13 @@ export const getProductDetails = catchAsyncError<{ id: string }>(
     if (!isValidObjectId(req.params.id)) {
       return res.status(400).json({ message: 'Invalid Product Id' });
     }
-    const getProduct = Product.findById(req.params.id)
+    const product = await Product.findById(req.params.id)
       .populate('owner', 'name email image')
       .lean();
-    const getReview = Review.find({ product: req.params.id })
-      .populate('reviewer', 'name email image')
-      .limit(10)
-      .sort({ createdAt: -1 })
-      .lean();
-
-    const [product, reviews] = await Promise.all([getProduct, getReview]);
 
     if (!product)
-      throw new CustomError("Product with this id doesn't exist", 400);
+      throw new NotFoundException("Product with this id doesn't exist");
 
-    return res.json({ product: { ...product, reviews } });
+    return res.json({ product });
   }
 );

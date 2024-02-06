@@ -8,10 +8,8 @@ import { Router } from 'express';
 
 const router = Router();
 
-router
-  .route('/review')
-  .post(isAuthenticatedUser, createOrUpdateReview)
-  .get(getProductReviews)
-  .delete(isAuthenticatedUser, deleteProductReview);
+router.post('/review/:id', isAuthenticatedUser, createOrUpdateReview);
+router.delete('/review/:id', isAuthenticatedUser, deleteProductReview);
+router.get('/reviews/:id', getProductReviews);
 
 export default router;

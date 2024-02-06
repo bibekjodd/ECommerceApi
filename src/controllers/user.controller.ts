@@ -1,5 +1,5 @@
-import { CustomError } from '@/lib/custom-error';
 import { cascadeOnDeleteUser } from '@/lib/db-actions';
+import { BadRequestException } from '@/lib/exceptions';
 import { uploadProductImage } from '@/lib/image-services';
 import sendMail from '@/lib/send-mail';
 import { cookieOptions, filterUser } from '@/lib/utils';
@@ -17,11 +17,11 @@ export const registerUser = catchAsyncError<unknown, unknown, RegisterUserBody>(
   async (req, res) => {
     const { name, email, password, imageDataUri } = req.body;
     if (!name || !email || !password)
-      throw new CustomError('Please Enter the required fields', 400);
+      throw new BadRequestException('Please Enter the required fields');
 
     const userExists = await User.findOne({ email });
     if (userExists)
-      throw new CustomError('User with same email already exists', 400);
+      throw new BadRequestException('User with same email already exists');
 
     const user = await User.create({ name, email, password });
     if (imageDataUri) {
@@ -50,13 +50,13 @@ export const loginUser = catchAsyncError<unknown, unknown, LoginUserBody>(
     const { email, password } = req.body;
 
     if (!email || !password)
-      throw new CustomError('Please enter required credentials', 400);
+      throw new BadRequestException('Please enter required credentials');
 
     const user = await User.findOne({ email }).select('+password');
-    if (!user) throw new CustomError('Invalid user credentials', 400);
+    if (!user) throw new BadRequestException('Invalid user credentials');
 
     const isMatch = await user.comparePassword(password || '');
-    if (!isMatch) throw new CustomError('Invalid user credentials', 400);
+    if (!isMatch) throw new BadRequestException('Invalid user credentials');
 
     const token = user.generateToken();
     return res
@@ -90,9 +90,10 @@ export const forgotPassword = catchAsyncError<
   ForgotPasswordBody
 >(async (req, res) => {
   const { email } = req.body;
-  if (!email) throw new CustomError('Please provide your email', 400);
+  if (!email) throw new BadRequestException('Please provide your email');
   const user = await User.findOne({ email });
-  if (!user) throw new CustomError("User with this email doesn't exist", 400);
+  if (!user)
+    throw new BadRequestException("User with this email doesn't exist");
 
   const token = user.getResetPasswordToken();
   await user.save({ validateBeforeSave: true });
@@ -120,10 +121,10 @@ export const resetPassword = catchAsyncError<
     resetPasswordExpire: { $gt: Date.now() }
   });
 
-  if (!user) throw new CustomError('Token is invalid or expired', 400);
+  if (!user) throw new BadRequestException('Token is invalid or expired');
 
   const { password } = req.body;
-  if (!password) throw new CustomError('Please provide password', 400);
+  if (!password) throw new BadRequestException('Please provide password');
   user.password = password;
   user.resetPasswordExpire = undefined;
   user.resetPasswordToken = undefined;
@@ -144,10 +145,10 @@ export const updatePassword = catchAsyncError<
   const { oldPassword, newPassword } = req.body;
 
   if (!oldPassword || !newPassword)
-    throw new CustomError('Please enter required fields', 400);
+    throw new BadRequestException('Please enter required fields');
 
   const isMatch = await req.user.comparePassword(oldPassword);
-  if (!isMatch) throw new CustomError('Incorrect old password', 400);
+  if (!isMatch) throw new BadRequestException('Incorrect old password');
 
   req.user.password = newPassword;
   await req.user.save({ validateBeforeSave: true });

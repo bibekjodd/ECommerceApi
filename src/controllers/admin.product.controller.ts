@@ -1,6 +1,6 @@
-import { uploadProductImage } from '@/lib/image-services';
-import { CustomError } from '@/lib/custom-error';
 import { cascadeOnDeleteProduct } from '@/lib/db-actions';
+import { NotFoundException } from '@/lib/exceptions';
+import { uploadProductImage } from '@/lib/image-services';
 import { catchAsyncError } from '@/middlewares/catch-async-error';
 import Product, { type TProduct } from '@/models/product.model';
 
@@ -39,7 +39,7 @@ export const updateProduct = catchAsyncError<
   UpdateProductBody
 >(async (req, res) => {
   const product = await Product.findById(req.params.id);
-  if (!product) throw new CustomError("Product doesn't exist", 400);
+  if (!product) throw new NotFoundException("Product doesn't exist");
   const { imageDataUri, ...productDetails } = req.body;
   if (imageDataUri) {
     const res = await uploadProductImage(imageDataUri);
@@ -61,7 +61,7 @@ export const updateProduct = catchAsyncError<
   ];
 
   for (const property of validUpdateProperties) {
-    // @ts-ignore
+    // @ts-expect-error todo...
     product[property] = productDetails[property] || product[property];
   }
 

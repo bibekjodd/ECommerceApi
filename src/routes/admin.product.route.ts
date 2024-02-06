@@ -8,7 +8,7 @@ import express from 'express';
 
 const router = express.Router();
 
-router.route('/product').post(isAuthenticatedUser, isAdmin, createProduct);
+router.route('/product').post(isAuthenticatedUser, createProduct);
 router
   .route('/product/:id')
   .put(isAuthenticatedUser, isAdmin, updateProduct)

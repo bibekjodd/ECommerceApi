@@ -26,6 +26,10 @@ export const updateProductOnReviewChange = async (productId: string) => {
       product.ratings = ratings;
       await product.save({ validateBeforeSave: true });
     }
+  } else {
+    await Product.findByIdAndUpdate(productId, {
+      $set: { numOfReviews: 0, ratings: 0 }
+    });
   }
 };
 

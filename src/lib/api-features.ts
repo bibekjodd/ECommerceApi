@@ -25,8 +25,8 @@ export default class ApiFeatures {
         this.query.featured === 'true'
           ? true
           : this.query.featured === 'false'
-          ? false
-          : undefined,
+            ? false
+            : undefined,
       owner: this.query.owner || undefined
     };
 
@@ -41,31 +41,41 @@ export default class ApiFeatures {
 
   filter() {
     // --------- filter by price ---------
-    if (this.query.price && typeof this.query.price === 'object') {
-      let queryString = JSON.stringify(this.query.price);
-      queryString = queryString.replace('gt', '$gt');
-      queryString = queryString.replace('lt', '$lt');
-
-      this.query.price = JSON.parse(queryString);
-      for (const key of Object.keys(this.query.price || {})) {
-        // @ts-ignore
-        this.query.price[key] = Number(this.query.price[key]) || 0;
-      }
-      this.result = this.result.find({ price: this.query.price });
+    if (this.query.price_gt) {
+      this.result = this.result.find({
+        price: { $gt: Number(this.query.price_gt) || 0 }
+      });
+    } else if (this.query.price_gte) {
+      this.result = this.result.find({
+        price: { $gte: Number(this.query.price_gte) || 0 }
+      });
+    } else if (this.query.price_lt) {
+      this.result = this.result.find({
+        price: { $lt: Number(this.query.price_lt) || 0 }
+      });
+    } else if (this.query.price_lte) {
+      this.result = this.result.find({
+        price: { $lte: Number(this.query.price_lte) || 0 }
+      });
     }
 
     // --------- filter by ratings ---------
-    if (this.query.ratings && typeof this.query.ratings === 'object') {
-      let queryString = JSON.stringify(this.query.ratings);
-      queryString = queryString.replace('gt', '$gt');
-      queryString = queryString.replace('lt', '$lt');
-
-      this.query.ratings = JSON.parse(queryString);
-      for (const key of Object.keys(this.query.ratings || {})) {
-        // @ts-ignore
-        this.query.ratings[key] = Number(this.query.ratings[key]) || 0;
-      }
-      this.result = this.result.find({ ratings: this.query.ratings });
+    if (this.query.ratings_gt) {
+      this.result = this.result.find({
+        ratings: { $gt: Number(this.query.ratings_gt) || 0 }
+      });
+    } else if (this.query.ratings_gte) {
+      this.result = this.result.find({
+        ratings: { $gte: Number(this.query.ratings_gte) || 0 }
+      });
+    } else if (this.query.ratings_lt) {
+      this.result = this.result.find({
+        ratings: { $lt: Number(this.query.ratings_lt) || 0 }
+      });
+    } else if (this.query.ratings_lte) {
+      this.result = this.result.find({
+        ratings: { $lte: Number(this.query.ratings_lte) || 0 }
+      });
     }
 
     if (this.query.offer === 'hotoffers' || this.query.offer === 'sales') {
@@ -83,22 +93,21 @@ export default class ApiFeatures {
   order() {
     if (!this.query.orderby) return this;
 
-    const [property, method] = this.query.orderby.split('-');
-    if (!property) return this;
-    const validProperties = ['price', 'createdAt', 'ratings'];
-
-    if (validProperties.includes(property)) {
-      this.result = this.result.sort({
-        [property]: method === 'asc' ? 'asc' : 'desc'
-      });
+    if (this.query.orderby === 'price_asc') {
+      this.result = this.result.sort({ price: 'asc' });
+    } else if (this.query.orderby === 'price_desc') {
+      this.result = this.result.sort({ price: 'desc' });
+    } else if (this.query.orderby === 'ratings_asc') {
+      this.result = this.result.sort({ ratings: 'asc' });
+    } else if (this.query.orderby === 'ratings_desc') {
+      this.result = this.result.sort({ ratings: 'desc' });
     }
-
     return this;
   }
 
   paginate() {
     const page = Number(this.query.page) || 1;
-    const pageSize = Number(this.query.pageSize) || 20;
+    const pageSize = Number(this.query.page_size) || 20;
     const skip = (page - 1) * pageSize;
     this.result = this.result.skip(skip).limit(pageSize).populate('owner');
     return this;
