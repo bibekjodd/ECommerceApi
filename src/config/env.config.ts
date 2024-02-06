@@ -4,10 +4,11 @@ import { z } from 'zod';
 const envSchema = z
   .object({
     NODE_ENV: z
-      .enum(['development', 'production', 'testing', 'test'])
+      .enum(['development', 'production', 'test'])
       .optional()
       .default('development'),
     MONGO_URI: z.string(),
+    TEST_MONGO_URI: z.string().optional(),
     JWT_SECRET: z.string(),
     FRONTEND_URLS: z
       .string()
@@ -36,7 +37,11 @@ const envSchema = z
         return port;
       })
   })
-  .readonly();
+  .readonly()
+  .refine((env) => {
+    if (env.NODE_ENV === 'test' && !env.TEST_MONGO_URI) return false;
+    return true;
+  }, 'Environment variables configuration failed');
 
 export const validateEnv = () => {
   if (process.env.NODE_ENV !== 'production') {
