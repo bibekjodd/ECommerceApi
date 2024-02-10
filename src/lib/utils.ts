@@ -25,3 +25,24 @@ export const decodeUserId = (
   if (!decoded?.id) return null;
   return decoded.id;
 };
+
+type AuthTokenPayload = { id: string };
+export const generateAuthToken = (id: string): string => {
+  const payload: AuthTokenPayload = { id };
+  const token = jwt.sign(payload, env.JWT_SECRET, { expiresIn: '7d' });
+  return token;
+};
+
+export const decodeAuthToken = (
+  token: string | null | undefined
+): string | null => {
+  try {
+    if (!token) return null;
+    const decoded = jwt.verify(token, env.JWT_SECRET) as
+      | AuthTokenPayload
+      | undefined;
+    return decoded?.id || null;
+  } catch (err) {
+    return null;
+  }
+};

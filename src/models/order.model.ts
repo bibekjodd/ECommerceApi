@@ -29,7 +29,7 @@ export type IOrder = {
   totalItemsCost: number;
   totalDiscount?: number;
   totalCost: number;
-  status: 'processing' | 'delivered';
+  status: 'processing' | 'delivered' | 'cancelled';
   deliveredAt?: number;
 };
 
@@ -98,7 +98,7 @@ const orderSchema = new Schema<IOrder, Model<IOrder>>(
     totalCost: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['processing', 'delivered'],
+      enum: ['processing', 'delivered', 'cancelled'],
       default: 'processing',
       required: true
     },
@@ -107,5 +107,4 @@ const orderSchema = new Schema<IOrder, Model<IOrder>>(
   { timestamps: true }
 );
 
-const Order = model('Order', orderSchema);
-export default Order;
+export const Order = model('Order', orderSchema);

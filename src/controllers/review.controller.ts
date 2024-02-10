@@ -1,22 +1,22 @@
 import { updateProductOnReviewChange } from '@/lib/db-actions';
 import { ForbiddenException, NotFoundException } from '@/lib/exceptions';
 import { decodeUserId } from '@/lib/utils';
-import { catchAsyncError } from '@/middlewares/catch-async-error';
-import Product from '@/models/product.model';
-import Review, { type IReview } from '@/models/review.model';
+import { handleAsync } from '@/middlewares/catch-async-error';
+import { Product } from '@/models/product.model';
+import { IReview, Review } from '@/models/review.model';
 
 type createOrUpdateReviewBody = Partial<{
   rating: number;
-  comment: string;
+  text: string;
   title: string;
 }>;
-export const createOrUpdateReview = catchAsyncError<
+export const createOrUpdateReview = handleAsync<
   { id: string },
   unknown,
   createOrUpdateReviewBody
 >(async (req, res, next) => {
   const productId = req.params.id;
-  const { rating, comment, title } = req.body;
+  const { rating, text, title } = req.body;
 
   const product = await Product.findById(productId);
   if (!product) {
@@ -25,23 +25,23 @@ export const createOrUpdateReview = catchAsyncError<
 
   let review = await Review.findOne({
     product: productId,
-    reviewer: req.user._id.toString()
+    reviewer: req.userId
   });
   let reviewExists = false;
 
   if (!review) {
     review = await Review.create({
-      comment,
+      text,
       rating,
       title,
       product: productId,
-      reviewer: req.user._id.toString()
+      reviewer: req.userId
     });
   } else {
     reviewExists = true;
     if (title) review.title = title;
     if (rating) review.rating = rating;
-    if (comment) review.comment = comment;
+    if (text) review.text = text;
     await review.save({ validateBeforeSave: true });
   }
 
@@ -53,7 +53,7 @@ export const createOrUpdateReview = catchAsyncError<
   });
 });
 
-export const getProductReviews = catchAsyncError<
+export const getProductReviews = handleAsync<
   { id: string },
   unknown,
   unknown,
@@ -91,7 +91,7 @@ export const getProductReviews = catchAsyncError<
   return res.json({ total: reviews.length, reviews });
 });
 
-export const deleteProductReview = catchAsyncError<
+export const deleteProductReview = handleAsync<
   { id: string },
   unknown,
   unknown
@@ -104,7 +104,7 @@ export const deleteProductReview = catchAsyncError<
     );
   }
   if (
-    req.user._id.toString() !== review.reviewer._id.toString() &&
+    req.userId !== review.reviewer._id.toString() &&
     req.user.role !== 'admin'
   )
     throw new ForbiddenException('Must be reviewer to delete review');

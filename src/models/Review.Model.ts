@@ -7,7 +7,7 @@ export type IReview = {
   reviewer: Types.ObjectId;
   title?: string;
   rating: number;
-  comment?: string;
+  text?: string;
   product: Types.ObjectId;
 };
 const reviewSchema = new Schema<IReview, Model<IReview>>(
@@ -19,7 +19,8 @@ const reviewSchema = new Schema<IReview, Model<IReview>>(
     },
     title: {
       type: String,
-      maxlength: [50, 'Review title must not exceed 50 characters']
+      maxlength: [50, 'Review title must not exceed 50 characters'],
+      trim: true
     },
     rating: {
       type: Number,
@@ -30,9 +31,10 @@ const reviewSchema = new Schema<IReview, Model<IReview>>(
         return value;
       }
     },
-    comment: {
+    text: {
       type: String,
-      maxlength: [200, 'Comment must not exceed 200 characters']
+      maxlength: [200, 'Comment must not exceed 200 characters'],
+      trim: true
     },
     product: {
       type: Schema.Types.ObjectId,
@@ -43,5 +45,4 @@ const reviewSchema = new Schema<IReview, Model<IReview>>(
   { timestamps: true }
 );
 
-const Review = model('Review', reviewSchema);
-export default Review;
+export const Review = model('Review', reviewSchema);

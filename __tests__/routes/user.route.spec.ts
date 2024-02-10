@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import supertest from 'supertest';
 import { app } from '../../src/app';
-import User from '../../src/models/user.model';
+import { User } from '../../src/models/user.model';
 import { invalidRegistrationData } from '../test.constants';
 import { getUserProfile, loginUser, registerUser, wait } from '../test.utils';
 

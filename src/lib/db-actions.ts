@@ -1,8 +1,8 @@
-import Product from '@/models/product.model';
-import Review from '@/models/review.model';
-import User from '@/models/user.model';
+import { Notification } from '@/models/notification.model';
+import { Order } from '@/models/order.model';
+import { Product } from '@/models/product.model';
+import { Review } from '@/models/review.model';
 import { Types } from 'mongoose';
-import { deleteImage } from './image-services';
 
 export const updateProductOnReviewChange = async (productId: string) => {
   const stats = (await Review.aggregate([
@@ -33,23 +33,15 @@ export const updateProductOnReviewChange = async (productId: string) => {
   }
 };
 
-export const cascadeOnDeleteUser = async (
-  userId: string,
-  userAvatarPublicId: string | undefined
-) => {
-  const delUser = User.findByIdAndDelete(userId);
-  const delProducts = Product.deleteMany({ owner: userId });
-  const delReviews = Review.deleteMany({ reviewer: userId });
+export const cascadeOnDeleteUser = async (userId: string) => {
   await Promise.all([
-    delUser,
-    delProducts,
-    delReviews,
-    deleteImage(userAvatarPublicId || '')
+    Product.deleteMany({ owner: userId }),
+    Review.deleteMany({ reviewer: userId }),
+    Notification.deleteMany({ user: userId }),
+    Order.deleteMany({ user: userId })
   ]);
 };
 
 export const cascadeOnDeleteProduct = async (productId: string) => {
-  const delProduct = Product.findByIdAndDelete(productId);
-  const delReviews = Review.deleteMany({ product: productId });
-  await Promise.all([delProduct, delReviews]);
+  await Promise.all([Review.deleteMany({ product: productId })]);
 };

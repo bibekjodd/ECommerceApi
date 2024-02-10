@@ -1,7 +1,5 @@
-import { env } from '@/config/env.config';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
 import { Schema, Types, model, type Document, type Model } from 'mongoose';
 import { z } from 'zod';
 
@@ -9,10 +7,8 @@ export type UserSchema = {
   _id: Types.ObjectId;
   name: string;
   email: string;
-  password?: string;
-  googleId?: string;
+  password: string | undefined;
   image?: string;
-  image_public_id?: string;
   emailVerified: boolean;
   role: 'user' | 'admin';
   resetPasswordToken?: string;
@@ -23,7 +19,6 @@ export type UserSchema = {
 
 type UserMethods = {
   comparePassword: (password: string) => Promise<boolean>;
-  generateToken: () => string;
   getResetPasswordToken: () => string;
 };
 
@@ -34,13 +29,22 @@ const userSchema = new Schema<UserSchema, Model<UserSchema>, UserMethods>(
       required: [true, 'Name is mandatory field'],
       trim: true,
       minLength: [4, 'Name must be at least 4 characters'],
-      maxLength: [30, 'Name should not exceed 30 characters']
+      maxLength: [30, 'Name should not exceed 30 characters'],
+      transform(name: string) {
+        return name.split(' ').slice(0, 3).join(' ').trim();
+      }
     },
     email: {
       type: String,
       required: [true, 'Email is mandatory field'],
       maxLength: [30, 'Email should not exceed 30 characters'],
-      validate: [z.string().email().parse, 'Must provide valid email'],
+      validate: [
+        (email: string) => {
+          return z.string().email().safeParse(email).success;
+        },
+        'Must provide valid email'
+      ],
+      lowercase: true,
       trim: true
     },
     password: {
@@ -51,15 +55,13 @@ const userSchema = new Schema<UserSchema, Model<UserSchema>, UserMethods>(
       trim: true
     },
     image: String,
-    image_public_id: String,
-    googleId: String,
     emailVerified: {
       type: Boolean,
       default: false
     },
     role: { type: String, default: 'user', enum: ['user', 'admin'] },
-    resetPasswordToken: String,
-    resetPasswordExpire: Number
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: Number }
   },
   { timestamps: true }
 );
@@ -75,12 +77,6 @@ userSchema.methods.comparePassword = async function (password: string) {
   return isMatch;
 };
 
-userSchema.methods.generateToken = function () {
-  return jwt.sign({ id: this._id }, env.JWT_SECRET, {
-    expiresIn: '7d'
-  });
-};
-
 userSchema.methods.getResetPasswordToken = function () {
   const token = crypto.randomBytes(20).toString('hex');
   this.resetPasswordToken = crypto
@@ -91,7 +87,7 @@ userSchema.methods.getResetPasswordToken = function () {
   return token;
 };
 
-const User = model('User', userSchema);
-export default User;
+export const User = model('User', userSchema);
+// export default User;
 
 export type TUser = UserSchema & UserMethods & Document<Types.ObjectId>;

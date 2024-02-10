@@ -1,3 +1,4 @@
+import { imageSchema } from '@/dtos/common.dto';
 import { Document, Model, Query, Schema, Types, model } from 'mongoose';
 
 export type ProductSchema = {
@@ -13,16 +14,15 @@ export type ProductSchema = {
   discountRate: number;
   ratings: number;
   tags: Types.Array<string>;
-  sizes: Types.Array<string>;
+  variants: Types.Array<string>;
   colors: Types.DocumentArray<Color>;
-  image: Image;
+  image: string;
   category: string;
   stock: number;
   numOfReviews: number;
   owner: Types.ObjectId;
 };
-type Color = { code: string; value: string };
-type Image = { public_id: string; url: string };
+type Color = { title: string; code: string };
 
 const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
   {
@@ -49,7 +49,7 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
     price: {
       type: Number,
       required: [true, 'Please provide product Price'],
-      max: [100000, 'Price must not exceed 100000']
+      max: [100_000, 'Price must not exceed 100000']
     },
     featured: {
       type: Boolean,
@@ -62,13 +62,13 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
           text: { type: String, required: true }
         }
       ],
-      transform: (value: { title: string; text: string }[]) => {
-        value = value.slice(0, 10);
-        value = value.map((feature) => ({
+      transform: (features: { title: string; text: string }[]) => {
+        features = features.slice(0, 10);
+        features = features.map((feature) => ({
           title: feature.title.trim().slice(0, 20),
           text: feature.title.trim().slice(0, 50)
         }));
-        return value;
+        return features;
       }
     },
     brand: { type: String, trim: true, lowercase: true },
@@ -88,39 +88,53 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
         return value.slice(0, 5);
       }
     },
-    sizes: {
+    variants: {
       type: [
         {
           type: String,
-          trim: true
+          trim: true,
+          lowercase: true
         }
       ],
       transform: (value: string[]) => {
-        const validSizes = ['sm', 'md', 'lg', 'xl', '2xl'];
-        const newSizes = value.filter((size) => validSizes.includes(size));
-        return newSizes;
+        const variants = value.map((size) => size.slice(0, 20));
+        return variants;
       }
     },
     colors: {
       type: [
         {
-          code: { type: String, trim: true },
-          value: { type: String, trim: true }
+          title: { type: String, trim: true },
+          code: { type: String, trim: true }
         }
       ],
-      transform: (value: Color[]) => {
-        return value.slice(0, 5);
+      transform: (colors: Color[]) => {
+        colors = colors?.slice(0, 5) || [];
+        colors = colors.map(({ code, title }) => ({
+          code: code.slice(0, 10),
+          title: title.slice(0, 10)
+        }));
+        return colors;
       }
     },
     image: {
-      url: String,
-      public_id: String
+      type: String,
+      maxlength: 100,
+      validate: [
+        (value: string) => {
+          if (!value) return true;
+          if (imageSchema.safeParse(value).success) return true;
+          return false;
+        },
+        'Invalid image url'
+      ]
     },
     category: {
       type: String,
       trim: true,
       lowercase: true,
-      required: [true, 'Please Enter Product Category']
+      required: [true, 'Please Enter Product Category'],
+      maxlength: 100
     },
     stock: {
       type: Number,
@@ -145,10 +159,9 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
 
 export type TProduct = Document & ProductSchema;
 
-const Product = model<ProductSchema, Model<ProductSchema>>(
+export const Product = model<ProductSchema, Model<ProductSchema>>(
   'Product',
   productSchema
 );
-export default Product;
 
 export type QueryProduct = Query<ProductSchema[], ProductSchema>;

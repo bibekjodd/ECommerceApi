@@ -1,6 +1,6 @@
 import type { GetProductsQuery } from '@/controllers/product.controller';
 import type { QueryProduct, TProduct } from '@/models/product.model';
-import { isValidObjectId, type FilterQuery } from 'mongoose';
+import { type FilterQuery } from 'mongoose';
 type ProductFilterQuery = FilterQuery<TProduct>;
 
 export default class ApiFeatures {
@@ -33,10 +33,6 @@ export default class ApiFeatures {
     this.result = this.result.find(JSON.parse(JSON.stringify(filterQuery)));
 
     return this;
-  }
-
-  invalidOwner() {
-    return this.query.owner && !isValidObjectId(this.query.owner);
   }
 
   filter() {
@@ -109,7 +105,7 @@ export default class ApiFeatures {
     const page = Number(this.query.page) || 1;
     const pageSize = Number(this.query.page_size) || 20;
     const skip = (page - 1) * pageSize;
-    this.result = this.result.skip(skip).limit(pageSize).populate('owner');
+    this.result = this.result.skip(skip).limit(pageSize);
     return this;
   }
 

@@ -7,15 +7,13 @@ import connectDatabase from './config/database';
 import { env, validateEnv } from './config/env.config';
 import devConsole from './lib/dev-console';
 import { NotFoundException } from './lib/exceptions';
-import { configureImageUploader } from './lib/image-services';
-import { catchAsyncError } from './middlewares/catch-async-error';
+import { handleAsync } from './middlewares/catch-async-error';
 import { handleErrorRequest } from './middlewares/handle-error-request';
-import adminProductRouter from './routes/admin.product.route';
-import adminRouter from './routes/admin.route';
-import adminUserRouter from './routes/admin.user.route';
-import productRouter from './routes/product.route';
-import reviewRoute from './routes/review.route';
-import userRouter from './routes/user.route';
+import { adminRoute } from './routes/admin.route';
+import { productRoute } from './routes/product.route';
+import { reviewRoute } from './routes/review.route';
+import { userRoute } from './routes/user.route';
+import { notificationRoute } from './routes/notification.route';
 
 export const app = express();
 async function bootstrap() {
@@ -32,7 +30,6 @@ async function bootstrap() {
     })
   );
   app.enable('trust proxy');
-  configureImageUploader();
   if (env.NODE_ENV === 'development') {
     app.use(morgan('common'));
   }
@@ -46,7 +43,7 @@ async function bootstrap() {
 
   app.get(
     '/refresh',
-    catchAsyncError(async (req, res) => {
+    handleAsync(async (req, res) => {
       await connectDatabase();
       return res.json({
         message: 'App refreshed',
@@ -56,12 +53,11 @@ async function bootstrap() {
   );
 
   // -------- routes --------
-  app.use('/api', userRouter);
-  app.use('/api', productRouter);
+  app.use('/api', userRoute);
+  app.use('/api', productRoute);
   app.use('/api', reviewRoute);
-  app.use('/api', adminRouter);
-  app.use('/api', adminUserRouter);
-  app.use('/api', adminProductRouter);
+  app.use('/api', adminRoute);
+  app.use('/api', notificationRoute);
 
   app.use(() => {
     throw new NotFoundException();
