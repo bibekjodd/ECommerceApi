@@ -8,7 +8,7 @@ const envSchema = z
       .optional()
       .default('development'),
     MONGO_URI: z.string(),
-    TEST_MONGO_URI: z.string().optional(),
+    MONGO_TEST_URI: z.string().optional(),
     JWT_SECRET: z.string(),
     FRONTEND_URLS: z
       .string()
@@ -39,7 +39,7 @@ const envSchema = z
   })
   .readonly()
   .refine((env) => {
-    if (env.NODE_ENV === 'test' && !env.TEST_MONGO_URI) return false;
+    if (env.NODE_ENV === 'test' && !env.MONGO_TEST_URI) return false;
     return true;
   }, 'Environment variables configuration failed');
 

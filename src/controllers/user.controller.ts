@@ -7,7 +7,7 @@ import { catchAsyncError } from '@/middlewares/catch-async-error';
 import User from '@/models/user.model';
 import crypto from 'crypto';
 
-type RegisterUserBody = Partial<{
+export type RegisterUserBody = Partial<{
   name: string;
   email: string;
   password: string;

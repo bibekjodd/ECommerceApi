@@ -1,12 +1,9 @@
 import mongoose from 'mongoose';
 import supertest from 'supertest';
 import { app } from '../src/app';
-const server = app.listen(5001);
 
 afterAll(async () => {
   await mongoose.disconnect();
-  server.close();
-  server.unref();
 });
 
 describe('app', () => {

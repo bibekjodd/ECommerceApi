@@ -1,5 +1,6 @@
 import { HttpException } from '@/lib/exceptions';
 import { ErrorRequestHandler } from 'express';
+import { MongooseError } from 'mongoose';
 import { ZodError } from 'zod';
 
 export const handleErrorRequest: ErrorRequestHandler = (
@@ -30,6 +31,10 @@ export const handleErrorRequest: ErrorRequestHandler = (
       }
       message = zodMessage || message;
     }
+  }
+
+  if (err instanceof MongooseError) {
+    statusCode = 400;
   }
 
   return res.status(statusCode).json({ message });
