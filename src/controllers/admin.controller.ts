@@ -1,6 +1,6 @@
 import { cascadeOnDeleteUser } from '@/lib/db-actions';
 import { NotFoundException } from '@/lib/exceptions';
-import { handleAsync } from '@/middlewares/catch-async-error';
+import { handleAsync } from '@/middlewares/handle-async';
 import { User } from '@/models/user.model';
 
 export const getAllUsers = handleAsync(async (req, res) => {

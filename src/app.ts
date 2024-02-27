@@ -7,7 +7,7 @@ import connectDatabase from './config/database';
 import { env, validateEnv } from './config/env.config';
 import devConsole from './lib/dev-console';
 import { NotFoundException } from './lib/exceptions';
-import { handleAsync } from './middlewares/catch-async-error';
+import { handleAsync } from './middlewares/handle-async';
 import { handleErrorRequest } from './middlewares/handle-error-request';
 import { adminRoute } from './routes/admin.route';
 import { productRoute } from './routes/product.route';

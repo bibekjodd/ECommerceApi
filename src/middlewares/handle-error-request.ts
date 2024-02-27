@@ -1,3 +1,5 @@
+import { env } from '@/config/env.config';
+import devConsole from '@/lib/dev-console';
 import { HttpException } from '@/lib/exceptions';
 import { ErrorRequestHandler } from 'express';
 import { MongooseError } from 'mongoose';
@@ -12,8 +14,12 @@ export const handleErrorRequest: ErrorRequestHandler = (
   next;
   let message = err.message || 'Internal Server Error';
   let statusCode = err.statusCode || 500;
+  let stack: string | undefined = undefined;
   if (err instanceof Error) {
     message = err.message || message;
+    if (env.NODE_ENV === 'development') {
+      stack = err.stack;
+    }
   }
 
   if (err instanceof HttpException) {
@@ -36,6 +42,5 @@ export const handleErrorRequest: ErrorRequestHandler = (
   if (err instanceof MongooseError) {
     statusCode = 400;
   }
-
-  return res.status(statusCode).json({ message });
+  return res.status(statusCode).json({ message, stack });
 };

@@ -1,7 +1,7 @@
 import { updateProductOnReviewChange } from '@/lib/db-actions';
 import { ForbiddenException, NotFoundException } from '@/lib/exceptions';
 import { decodeUserId } from '@/lib/utils';
-import { handleAsync } from '@/middlewares/catch-async-error';
+import { handleAsync } from '@/middlewares/handle-async';
 import { Product } from '@/models/product.model';
 import { IReview, Review } from '@/models/review.model';
 

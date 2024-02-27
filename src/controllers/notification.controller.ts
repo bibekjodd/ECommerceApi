@@ -1,4 +1,4 @@
-import { handleAsync } from '@/middlewares/catch-async-error';
+import { handleAsync } from '@/middlewares/handle-async';
 import { Notification } from '@/models/notification.model';
 
 type GetNotificationQuery = {

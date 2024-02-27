@@ -1,7 +1,7 @@
 import { ForbiddenException, UnauthorizedException } from '@/lib/exceptions';
 import { decodeAuthToken } from '@/lib/utils';
 import { User } from '@/models/user.model';
-import { handleAsync } from './catch-async-error';
+import { handleAsync } from './handle-async';
 
 export const isAuthenticatedUser = handleAsync(async (req, res, next) => {
   const unauthorizedException = new UnauthorizedException(

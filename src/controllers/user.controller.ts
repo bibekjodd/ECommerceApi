@@ -2,7 +2,7 @@ import { cascadeOnDeleteUser } from '@/lib/db-actions';
 import { BadRequestException } from '@/lib/exceptions';
 import sendMail from '@/lib/send-mail';
 import { cookieOptions, filterUser, generateAuthToken } from '@/lib/utils';
-import { handleAsync } from '@/middlewares/catch-async-error';
+import { handleAsync } from '@/middlewares/handle-async';
 import { Notification } from '@/models/notification.model';
 import { User } from '@/models/user.model';
 import crypto from 'crypto';

@@ -5,7 +5,7 @@ import {
   ForbiddenException,
   NotFoundException
 } from '@/lib/exceptions';
-import { handleAsync } from '@/middlewares/catch-async-error';
+import { handleAsync } from '@/middlewares/handle-async';
 import { Notification } from '@/models/notification.model';
 import { Product, TProduct } from '@/models/product.model';
 import { isValidObjectId } from 'mongoose';
@@ -15,7 +15,9 @@ export const createProduct = handleAsync<unknown, unknown, CreateProductBody>(
   async (req, res) => {
     const product = await Product.create({
       ...req.body,
-      owner: req.userId
+      owner: req.userId,
+      numOfReviews: 0,
+      ratings: 0
     });
     Notification.create({
       user: req.userId,
@@ -35,10 +37,12 @@ export const updateProduct = handleAsync<
 >(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) throw new NotFoundException("Product doesn't exist");
-  if (req.userId !== product?.owner.toString() || req.user.role !== 'admin') {
-    throw new ForbiddenException(
-      'You must be owner of the product or admin to update product'
-    );
+  if (req.userId !== product?.owner.toString()) {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenException(
+        'You must be owner of the product or admin to update product'
+      );
+    }
   }
 
   const validUpdateProperties = [
@@ -58,7 +62,7 @@ export const updateProduct = handleAsync<
 
   for (const property of validUpdateProperties) {
     // @ts-expect-error assign properties
-    product[property] = productDetails[property] || product[property];
+    product[property] = req.body[property] || product[property];
   }
   await product.updateOne({ ...req.body }, { runValidators: true });
   return res.json({ message: 'Product updated successfully' });

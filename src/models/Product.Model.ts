@@ -119,12 +119,11 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
     },
     image: {
       type: String,
-      maxlength: 100,
+      maxlength: 150,
       validate: [
         (value: string) => {
           if (!value) return true;
-          if (imageSchema.safeParse(value).success) return true;
-          return false;
+          return imageSchema.safeParse(value).success;
         },
         'Invalid image url'
       ]
