@@ -1,28 +1,30 @@
+import { env } from '@/config/env.config';
 import {
   deleteProfile,
   forgotPassword,
-  getUserProfile,
-  loginUser,
+  getProfile,
   logout,
   registerUser,
   resetPassword,
   updatePassword,
   updateProfile
 } from '@/controllers/user.controller';
-import { isAuthenticatedUser } from '@/middlewares/auth';
-import express from 'express';
+import { Router } from 'express';
+import passport from 'passport';
 
-const router = express.Router();
+const router = Router();
 export const userRoute = router;
 
-router.route('/register').post(registerUser);
-router.route('/login').post(loginUser);
-router
-  .route('/profile')
-  .get(isAuthenticatedUser, getUserProfile)
-  .put(isAuthenticatedUser, updateProfile)
-  .delete(isAuthenticatedUser, deleteProfile);
+router.post('/register', registerUser);
+router.post('/login', passport.authenticate('local'), getProfile);
+router.get('/login/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
+router.get('/callback/google', passport.authenticate('google'), (req, res) => {
+  res.redirect(env.AUTH_REDIRECT_URI);
+});
+
+router.route('/profile').get(getProfile).put(updateProfile).delete(deleteProfile);
+router.get('/logout', logout);
+
 router.route('/password/forgot').post(forgotPassword);
 router.route('/password/reset/:token').put(resetPassword);
-router.route('/logout').get(logout);
-router.route('/password/update').put(isAuthenticatedUser, updatePassword);
+router.put('/password', updatePassword);

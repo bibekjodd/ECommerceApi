@@ -3,25 +3,22 @@ import { z } from 'zod';
 
 const envSchema = z
   .object({
-    NODE_ENV: z
-      .enum(['development', 'production', 'test'])
-      .optional()
-      .default('development'),
+    NODE_ENV: z.enum(['development', 'production', 'test']).optional().default('development'),
     MONGO_URI: z.string(),
-    MONGO_TEST_URI: z.string().optional(),
-    JWT_SECRET: z.string(),
+    SESSION_SECRET: z.string(),
     FRONTEND_URLS: z
       .string()
       .optional()
       .transform((data) => (data || '').split(' ')),
 
-    CLOUDINARY_API_KEY: z.string(),
-    CLOUDINARY_API_SECRET: z.string(),
-    CLOUDINARY_API_CLOUD_NAME: z.string(),
-
     SMTP_PASS: z.string(),
     SMTP_SERVICE: z.string(),
     SMTP_MAIL: z.string(),
+
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+    GOOGLE_CALLBACK_URL: z.string(),
+    AUTH_REDIRECT_URI: z.string(),
 
     PORT: z
       .union([z.string(), z.number()])
@@ -37,11 +34,7 @@ const envSchema = z
         return port;
       })
   })
-  .readonly()
-  .refine((env) => {
-    if (env.NODE_ENV === 'test' && !env.MONGO_TEST_URI) return false;
-    return true;
-  }, 'Environment variables configuration failed');
+  .readonly();
 
 export const validateEnv = () => {
   if (process.env.NODE_ENV !== 'production') {
@@ -50,7 +43,12 @@ export const validateEnv = () => {
   try {
     return envSchema.parse(process.env);
   } catch (error) {
-    console.log(`Environment variables validation failed\nExitting app`);
+    if (error instanceof Error) {
+      console.log(error.message);
+    } else {
+      console.log('Unknown error occured. Env validation failed');
+    }
+    console.log(`Environment variables validation failed\nExitting app`.red);
     process.exit(1);
   }
 };

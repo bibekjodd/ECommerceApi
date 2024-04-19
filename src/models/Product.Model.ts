@@ -1,10 +1,10 @@
 import { imageSchema } from '@/dtos/common.dto';
 import { Document, Model, Query, Schema, Types, model } from 'mongoose';
 
-export type ProductSchema = {
+type ProductSchema = {
   _id: Types.ObjectId;
-  createdAt: NativeDate;
-  updatedAt: NativeDate;
+  createdAt: string;
+  updatedAt: string;
   title: string;
   description: Types.Array<string>;
   price: number;
@@ -41,6 +41,7 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
         }
       ],
       transform: (description: string[]) => {
+        description = description.filter((desc) => desc !== '');
         description = description.slice(0, 10);
         description = description.map((value) => value.trim().slice(0, 200));
         return description;
@@ -63,6 +64,7 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
         }
       ],
       transform: (features: { title: string; text: string }[]) => {
+        features = features.filter((feature) => feature.text !== '' && feature.title !== '');
         features = features.slice(0, 10);
         features = features.map((feature) => ({
           title: feature.title.trim().slice(0, 20),
@@ -84,8 +86,11 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
     },
     tags: {
       type: [{ type: String, trim: true, lowercase: true }],
-      transform: (value: string[]) => {
-        return value.slice(0, 5);
+      transform: (tags: string[]) => {
+        tags = tags.filter((tag) => tag !== '');
+        tags = tags.slice(0, 5);
+        tags = tags.map((tag) => tag.slice(0, 20));
+        return tags;
       }
     },
     variants: {
@@ -96,8 +101,10 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
           lowercase: true
         }
       ],
-      transform: (value: string[]) => {
-        const variants = value.map((size) => size.slice(0, 20));
+      transform: (variants: string[]) => {
+        variants = variants.filter((variant) => variant !== '');
+        variants = variants.slice(0, 10);
+        variants = variants.map((variant) => variant.slice(0, 20));
         return variants;
       }
     },
@@ -158,9 +165,6 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
 
 export type TProduct = Document & ProductSchema;
 
-export const Product = model<ProductSchema, Model<ProductSchema>>(
-  'Product',
-  productSchema
-);
+export const Product = model<ProductSchema, Model<ProductSchema>>('Product', productSchema);
 
 export type QueryProduct = Query<ProductSchema[], ProductSchema>;

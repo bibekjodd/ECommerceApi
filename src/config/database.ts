@@ -1,14 +1,16 @@
-import devConsole from '@/lib/dev-console';
+import { devConsole } from '@/lib/utils';
 import { connect } from 'mongoose';
 import { env } from './env.config';
 
-export default async function connectDatabase() {
-  try {
-    const { connection } = await connect(
-      env.NODE_ENV === 'test' ? env.MONGO_TEST_URI! : env.MONGO_URI
-    );
-    devConsole(`⚡[Mongodb]: connected to ${connection.host}`.magenta);
-  } catch (err) {
-    devConsole(`Error occurred while connecting mongodb`.red);
-  }
-}
+export const connectDatabase = async () => {
+  return connect(env.MONGO_URI)
+    .then(({ connection }) => {
+      devConsole(`⚡[Mongodb]: connected to ${connection.host}`.magenta);
+      return connection.getClient();
+    })
+    .catch((err) => {
+      if (err instanceof Error) console.log(err.message.red);
+      console.log(`Error occurred while connecting mongodb\n Exitting app...`.red);
+      process.exit(1);
+    });
+};

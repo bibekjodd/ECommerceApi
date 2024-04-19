@@ -22,11 +22,7 @@ export default class ApiFeatures {
       category: this.query.category || undefined,
       brand: this.query.brand || undefined,
       featured:
-        this.query.featured === 'true'
-          ? true
-          : this.query.featured === 'false'
-            ? false
-            : undefined,
+        this.query.featured === 'true' ? true : this.query.featured === 'false' ? false : undefined,
       owner: this.query.owner || undefined
     };
 

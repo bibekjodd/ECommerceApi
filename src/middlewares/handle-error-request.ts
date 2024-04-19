@@ -1,16 +1,10 @@
 import { env } from '@/config/env.config';
-import devConsole from '@/lib/dev-console';
 import { HttpException } from '@/lib/exceptions';
 import { ErrorRequestHandler } from 'express';
 import { MongooseError } from 'mongoose';
 import { ZodError } from 'zod';
 
-export const handleErrorRequest: ErrorRequestHandler = (
-  err,
-  req,
-  res,
-  next
-) => {
+export const handleErrorRequest: ErrorRequestHandler = (err, req, res, next) => {
   next;
   let message = err.message || 'Internal Server Error';
   let statusCode = err.statusCode || 500;
