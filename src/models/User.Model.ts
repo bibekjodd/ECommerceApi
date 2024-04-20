@@ -1,3 +1,4 @@
+import { imageSchema } from '@/dtos/common.dto';
 import { Model, Schema, Types, model, type Document } from 'mongoose';
 import { z } from 'zod';
 
@@ -16,7 +17,7 @@ type UserSchema = {
   updatedAt: string;
 };
 
-const userSchema = new Schema<UserSchema, Model<UserSchema>>(
+export const userSchema = new Schema<UserSchema, Model<UserSchema>>(
   {
     name: {
       type: String,
@@ -47,7 +48,16 @@ const userSchema = new Schema<UserSchema, Model<UserSchema>>(
       minLength: [6, 'Password must be at least 6 characters'],
       trim: true
     },
-    image: { type: String },
+    image: {
+      type: String,
+      validate: [
+        (image?: string) => {
+          if (!image) return true;
+          return imageSchema.safeParse(image).success;
+        },
+        'Invalid image uri'
+      ]
+    },
     emailVerified: {
       type: Boolean,
       default: false
@@ -63,3 +73,12 @@ const userSchema = new Schema<UserSchema, Model<UserSchema>>(
 export const User = model<UserSchema, Model<UserSchema>>('User', userSchema);
 
 export type TUser = UserSchema & Document<Types.ObjectId>;
+
+let userProperties = '';
+userSchema.eachPath((path) => {
+  if (['_id', 'password', 'resetPasswordToken', 'resetPasswordExpire'].includes(path)) return;
+  userProperties += ' ';
+  userProperties += path;
+});
+
+export const selectUserProperties = userProperties;

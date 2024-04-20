@@ -2,6 +2,7 @@ import { ForbiddenException, NotFoundException, UnauthorizedException } from '@/
 import { handleAsync } from '@/middlewares/handle-async';
 import { Product } from '@/models/product.model';
 import { IReview, Review } from '@/models/review.model';
+import { selectUserProperties } from '@/models/user.model';
 import { updateProductOnReviewChange } from '@/services/product.service';
 
 type createOrUpdateReviewBody = Partial<{
@@ -65,12 +66,12 @@ export const getProductReviews = handleAsync<{ id: string }, unknown, unknown, {
         product: productId,
         reviewer: userId
       })
-        .populate('reviewer', 'name email image')
+        .populate('reviewer', selectUserProperties)
         .lean();
     }
 
     let reviews = await Review.find({ product: productId })
-      .populate('reviewer', 'name email image')
+      .populate('reviewer', selectUserProperties)
       .sort({ createdAt: -1 })
       .skip(skip)
       .lean();

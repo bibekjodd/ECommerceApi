@@ -34,6 +34,10 @@ export const handleErrorRequest: ErrorRequestHandler = (err, req, res, next) => 
   }
 
   if (err instanceof MongooseError) {
+    if (err.name === 'ValidationError') {
+      // @ts-expect-error mongoose typescript undefined error property
+      message = Object.values(err.errors)?.at(0)?.message || message;
+    }
     statusCode = 400;
   }
   return res.status(statusCode).json({ message, stack });

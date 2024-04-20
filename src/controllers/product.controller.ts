@@ -8,12 +8,16 @@ import {
 import { handleAsync } from '@/middlewares/handle-async';
 import { Notification } from '@/models/notification.model';
 import { Product, TProduct } from '@/models/product.model';
+import { selectUserProperties } from '@/models/user.model';
 import { cascadeOnDeleteProduct } from '@/services/common.service';
 import { isValidObjectId } from 'mongoose';
 
 export type CreateProductBody = Partial<TProduct>;
 export const createProduct = handleAsync<unknown, unknown, CreateProductBody>(async (req, res) => {
   if (!req.user) throw new UnauthorizedException();
+  if (Number(req.body.stock) < 1)
+    throw new BadRequestException('Product must have at least 1 stock');
+
   const product = await Product.create({
     ...req.body,
     owner: req.user._id.toString(),
@@ -24,7 +28,10 @@ export const createProduct = handleAsync<unknown, unknown, CreateProductBody>(as
     user: req.user._id.toString(),
     title: `Product ${product.title} successfully added. The missing features on product can still be added through dashboard.`
   });
-  return res.status(201).json({ product, message: 'Product created successfully' });
+  return res.status(201).json({
+    product: { ...product.toObject(), owner: req.user },
+    message: 'Product created successfully'
+  });
 });
 
 type UpdateProductBody = Partial<TProduct>;
@@ -108,7 +115,7 @@ export const queryProducts = handleAsync<unknown, unknown, unknown, GetProductsQ
       throw new BadRequestException('Invalid owner id provided');
     }
     const apiFeature = new ApiFeatures(
-      Product.find().populate('owner', 'name email image'),
+      Product.find().populate('owner', selectUserProperties),
       req.query
     );
     apiFeature.runAllQueries();
@@ -133,7 +140,7 @@ export const getProductDetails = handleAsync<{ id: string }>(async (req, res) =>
     return res.status(400).json({ message: 'Invalid Product Id' });
   }
   const product = await Product.findById(req.params.id)
-    .populate('owner', 'name email image')
+    .populate('owner', selectUserProperties)
     .lean();
 
   if (!product) throw new NotFoundException("Product with this id doesn't exist");

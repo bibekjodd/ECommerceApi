@@ -21,7 +21,14 @@ export const registerUser = handleAsync<unknown, unknown, RegisterUserBody>(asyn
   if (userExists) throw new BadRequestException('User with same email already exists');
 
   const { name, email, password, image } = req.body;
-  const user = await User.create({ name, email, password, image, isGoogleUser: false });
+  const hashedPassword = await hashPassword(password);
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    image,
+    isGoogleUser: false
+  });
   Notification.create({
     title: `Welcome to Superdeals ${user.name}`,
     description: 'You are now eligible to add/manage products and orders on Superdeals',

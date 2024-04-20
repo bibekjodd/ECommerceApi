@@ -63,7 +63,8 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
           text: { type: String, required: true }
         }
       ],
-      transform: (features: { title: string; text: string }[]) => {
+      transform: (features?: { title: string; text: string }[]) => {
+        if (!features) return undefined;
         features = features.filter((feature) => feature.text !== '' && feature.title !== '');
         features = features.slice(0, 10);
         features = features.map((feature) => ({
@@ -86,7 +87,8 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
     },
     tags: {
       type: [{ type: String, trim: true, lowercase: true }],
-      transform: (tags: string[]) => {
+      transform: (tags?: string[]) => {
+        if (!tags) return undefined;
         tags = tags.filter((tag) => tag !== '');
         tags = tags.slice(0, 5);
         tags = tags.map((tag) => tag.slice(0, 20));
@@ -115,7 +117,8 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
           code: { type: String, trim: true }
         }
       ],
-      transform: (colors: Color[]) => {
+      transform: (colors?: Color[]) => {
+        if (!colors) return undefined;
         colors = colors?.slice(0, 5) || [];
         colors = colors.map(({ code, title }) => ({
           code: code.slice(0, 10),
@@ -145,7 +148,7 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
     stock: {
       type: Number,
       required: [true, 'Please Enter product Stock'],
-      min: [1, 'At least 1 stock must be available initially'],
+      min: 0,
       max: [1000, 'Stocks must not exceed 1000 quantities'],
       default: 1
     },
@@ -168,3 +171,11 @@ export type TProduct = Document & ProductSchema;
 export const Product = model<ProductSchema, Model<ProductSchema>>('Product', productSchema);
 
 export type QueryProduct = Query<ProductSchema[], ProductSchema>;
+
+let productProperties = '';
+productSchema.eachPath((path) => {
+  productProperties += ' ';
+  productProperties += path;
+});
+
+export const selectProductProperties = productProperties;

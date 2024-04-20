@@ -16,6 +16,7 @@ import { LocalStrategy } from './passport/local.strategy';
 import { passportSerializer } from './passport/serializer';
 import { adminRoute } from './routes/admin.route';
 import { notificationRoute } from './routes/notification.route';
+import { orderRoute } from './routes/order.route';
 import { productRoute } from './routes/product.route';
 import { reviewRoute } from './routes/review.route';
 import { userRoute } from './routes/user.route';
@@ -69,6 +70,7 @@ app.use('/api', productRoute);
 app.use('/api', reviewRoute);
 app.use('/api', adminRoute);
 app.use('/api', notificationRoute);
+app.use('/api', orderRoute);
 
 app.use(() => {
   throw new NotFoundException();

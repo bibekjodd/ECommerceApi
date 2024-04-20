@@ -1,108 +1,85 @@
 import { Model, Schema, Types, model } from 'mongoose';
 
-export type IOrder = {
+export type OrderSchema = {
   _id: Types.ObjectId;
   createdAt: NativeDate;
   updatedAt: NativeDate;
-
-  shippingInfo: {
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    pinCode: string;
-    phoneNo: string;
-  };
-
-  orderItems: Types.DocumentArray<{
-    productId: Types.ObjectId;
-    taxCost?: number;
-    discount?: number;
-    shippingCost?: number;
-    cost: number;
-    finalCost: number;
-  }>;
+  product: Types.ObjectId;
   user: Types.ObjectId;
-  paidAt: number;
-  totalShippingCost?: number;
-  totalTaxCost?: number;
-  totalItemsCost: number;
-  totalDiscount?: number;
-  totalCost: number;
+  seller: Types.ObjectId;
+  address: string;
   status: 'processing' | 'delivered' | 'cancelled';
-  deliveredAt?: number;
+  paid: boolean;
+  paymentType: 'cash-on-delivery' | 'online';
+  price: number;
+  quantity: number;
+  totalPrice: number;
+  orderedAt: NativeDate;
+  estimatedDeliveryDate: NativeDate;
+  deliveredAt: NativeDate | undefined;
 };
 
-const orderSchema = new Schema<IOrder, Model<IOrder>>(
+const orderSchema = new Schema<OrderSchema, Model<OrderSchema>>(
   {
-    shippingInfo: {
-      address: {
-        type: String,
-        maxlength: 50,
-        trim: true,
-        required: true
-      },
-      city: {
-        type: String,
-        maxlength: 50,
-        trim: true,
-        required: true
-      },
-      state: {
-        type: String,
-        maxlength: 50,
-        trim: true,
-        required: true
-      },
-      country: {
-        type: String,
-        maxlength: 50,
-        trim: true,
-        required: true
-      },
-      pinCode: {
-        type: String,
-        maxlength: 50,
-        trim: true,
-        required: true
-      },
-      phoneNo: {
-        type: String,
-        maxlength: 50,
-        trim: true,
-        required: true
-      }
+    product: {
+      type: Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
     },
-
-    orderItems: [
-      {
-        productId: {
-          type: Schema.Types.ObjectId,
-          ref: 'Product',
-          required: true
-        },
-        taxCost: Number,
-        discount: Number,
-        shippingCost: Number,
-        cost: { type: Number, required: true },
-        finalCost: { type: Number, required: true }
-      }
-    ],
-
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    paidAt: { type: Number, required: true },
-    totalShippingCost: Number,
-    totalTaxCost: Number,
-    totalItemsCost: { type: Number, required: true },
-    totalDiscount: Number,
-    totalCost: { type: Number, required: true },
+    address: {
+      type: String,
+      maxlength: [200, 'Too long address'],
+      required: true
+    },
+    deliveredAt: {
+      type: Date
+    },
+    estimatedDeliveryDate: {
+      type: Date,
+      required: true
+    },
+    orderedAt: {
+      type: Date,
+      required: true,
+      default: Date.now
+    },
+    paid: {
+      type: Boolean,
+      default: false
+    },
+    paymentType: {
+      type: String,
+      enum: ['cash-on-delivery', 'online'],
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: [100_000, "Can't place order of more than 100,000 on a single order"]
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: [100_000, "Can't place order of more than 100,000 units on a single order"]
+    },
     status: {
       type: String,
       enum: ['processing', 'delivered', 'cancelled'],
-      default: 'processing',
+      default: 'processing'
+    },
+    totalPrice: { type: Number, required: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true
     },
-    deliveredAt: Number
+    seller: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    }
   },
   { timestamps: true }
 );

@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
 
-type TNotification = {
+type NotificationSchema = {
   title: string;
   description?: string;
   user: mongoose.Types.ObjectId;
+  createdAt: NativeDate;
 };
-const notificationSchema = new mongoose.Schema<TNotification>(
+const notificationSchema = new mongoose.Schema<NotificationSchema>(
   {
     title: {
       type: String,
@@ -25,6 +26,11 @@ const notificationSchema = new mongoose.Schema<TNotification>(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true
+    },
+    createdAt: {
+      type: Date,
+      required: true,
+      default: Date.now
     }
   },
   { timestamps: true }
