@@ -28,7 +28,7 @@ const reviewSchema = new Schema<IReview, Model<IReview>>(
       transform: (value: number) => {
         if (value < 1) return 1;
         if (value > 5) return 5;
-        return value;
+        return Math.round(value * 10) / 10;
       }
     },
     text: {

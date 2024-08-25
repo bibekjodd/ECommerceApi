@@ -2,7 +2,6 @@ import {
   cancelOrder,
   getMyOrders,
   getOrdersOnMyProducts,
-  placeOrder,
   updateOrder
 } from '@/controllers/order.controller';
 import { Router } from 'express';
@@ -10,7 +9,8 @@ import { Router } from 'express';
 const router = Router();
 export const orderRoute = router;
 
-router.route('/order/:id').post(placeOrder).put(updateOrder).delete(cancelOrder);
+router.put('/order/:id', updateOrder);
+router.put('/cancel-order/:id', cancelOrder);
 
 router.get('/my-orders', getMyOrders);
 router.get('/orders', getOrdersOnMyProducts);

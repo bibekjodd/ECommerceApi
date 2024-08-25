@@ -5,8 +5,7 @@ import { MongooseError } from 'mongoose';
 import { ZodError } from 'zod';
 
 export const handleErrorRequest: ErrorRequestHandler = (err, req, res, next) => {
-  next;
-  let message = err.message || 'Internal Server Error';
+  let message: string = err.message || 'Internal Server Error';
   let statusCode = err.statusCode || 500;
   let stack: string | undefined = undefined;
   if (err instanceof Error) {

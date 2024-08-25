@@ -76,9 +76,13 @@ export const deleteProduct = handleAsync<{ id: string }>(async (req, res) => {
 
   const productId = req.params.id;
   const product = await Product.findById(productId);
-  if (req.user.role !== 'admin' || product?.owner.toString() !== req.user._id.toString()) {
+
+  if (!product) throw new NotFoundException('Product is already deleted or does not exist');
+
+  if (!(req.user.role === 'admin' || product?.owner.toString() == req.user._id.toString())) {
     throw new ForbiddenException('You must be product owner or admin to delete product');
   }
+
   await Promise.all([product.deleteOne(), cascadeOnDeleteProduct(productId)]);
   Notification.create({
     user: product.owner.toString(),
@@ -111,6 +115,11 @@ export type GetProductsQuery = Partial<{
 }>;
 export const queryProducts = handleAsync<unknown, unknown, unknown, GetProductsQuery>(
   async (req, res) => {
+    if (req.query.owner === 'self') {
+      if (!req.user) throw new UnauthorizedException();
+      req.query.owner = req.user._id.toString();
+    }
+
     if (req.query.owner && !isValidObjectId(req.query.owner)) {
       throw new BadRequestException('Invalid owner id provided');
     }

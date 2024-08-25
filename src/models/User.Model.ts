@@ -1,4 +1,3 @@
-import { imageSchema } from '@/dtos/common.dto';
 import { Model, Schema, Types, model, type Document } from 'mongoose';
 import { z } from 'zod';
 
@@ -50,13 +49,7 @@ export const userSchema = new Schema<UserSchema, Model<UserSchema>>(
     },
     image: {
       type: String,
-      validate: [
-        (image?: string) => {
-          if (!image) return true;
-          return imageSchema.safeParse(image).success;
-        },
-        'Invalid image uri'
-      ]
+      maxlength: [150, 'Too long image uri']
     },
     emailVerified: {
       type: Boolean,

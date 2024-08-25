@@ -1,8 +1,10 @@
 import { devConsole } from '@/lib/utils';
 import { connect } from 'mongoose';
 import { env } from './env.config';
+import {} from 'mongoose';
+import MongoStore from 'connect-mongo';
 
-export const connectDatabase = async () => {
+export const connectDatabase = async (): Promise<MongoStore['clientP']> => {
   return connect(env.MONGO_URI)
     .then(({ connection }) => {
       devConsole(`⚡[Mongodb]: connected to ${connection.host}`.magenta);

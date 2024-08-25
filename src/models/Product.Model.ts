@@ -14,15 +14,12 @@ type ProductSchema = {
   discountRate: number;
   ratings: number;
   tags: Types.Array<string>;
-  variants: Types.Array<string>;
-  colors: Types.DocumentArray<Color>;
   image: string;
   category: string;
   stock: number;
   numOfReviews: number;
   owner: Types.ObjectId;
 };
-type Color = { title: string; code: string };
 
 const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
   {
@@ -50,7 +47,10 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
     price: {
       type: Number,
       required: [true, 'Please provide product Price'],
-      max: [100_000, 'Price must not exceed 100000']
+      max: [100_000, "Price of the product can't exceed $100,000"],
+      transform(price: number) {
+        return Math.round(price * 100) / 100;
+      }
     },
     featured: {
       type: Boolean,
@@ -69,7 +69,7 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
         features = features.slice(0, 10);
         features = features.map((feature) => ({
           title: feature.title.trim().slice(0, 20),
-          text: feature.title.trim().slice(0, 50)
+          text: feature.text.trim().slice(0, 50)
         }));
         return features;
       }
@@ -95,38 +95,6 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
         return tags;
       }
     },
-    variants: {
-      type: [
-        {
-          type: String,
-          trim: true,
-          lowercase: true
-        }
-      ],
-      transform: (variants: string[]) => {
-        variants = variants.filter((variant) => variant !== '');
-        variants = variants.slice(0, 10);
-        variants = variants.map((variant) => variant.slice(0, 20));
-        return variants;
-      }
-    },
-    colors: {
-      type: [
-        {
-          title: { type: String, trim: true },
-          code: { type: String, trim: true }
-        }
-      ],
-      transform: (colors?: Color[]) => {
-        if (!colors) return undefined;
-        colors = colors?.slice(0, 5) || [];
-        colors = colors.map(({ code, title }) => ({
-          code: code.slice(0, 10),
-          title: title.slice(0, 10)
-        }));
-        return colors;
-      }
-    },
     image: {
       type: String,
       maxlength: 150,
@@ -150,7 +118,10 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
       required: [true, 'Please Enter product Stock'],
       min: 0,
       max: [1000, 'Stocks must not exceed 1000 quantities'],
-      default: 1
+      default: 1,
+      transform(stock: number) {
+        return Math.round(stock);
+      }
     },
     numOfReviews: {
       type: Number,

@@ -20,6 +20,9 @@ const envSchema = z
     GOOGLE_CALLBACK_URL: z.string(),
     AUTH_REDIRECT_URI: z.string(),
 
+    STRIPE_SECRET_KEY: z.string(),
+    STRIPE_SECRET_WEBHOOK_KEY: z.string(),
+
     PORT: z
       .union([z.string(), z.number()])
       .default(5000)

@@ -15,6 +15,8 @@ import { GoogleStrategy } from './passport/google.strategy';
 import { LocalStrategy } from './passport/local.strategy';
 import { passportSerializer } from './passport/serializer';
 import { adminRoute } from './routes/admin.route';
+import { cartRoute } from './routes/cart.route';
+import { checkoutRoute } from './routes/checkout.route';
 import { notificationRoute } from './routes/notification.route';
 import { orderRoute } from './routes/order.route';
 import { productRoute } from './routes/product.route';
@@ -24,6 +26,7 @@ import { userRoute } from './routes/user.route';
 export const app = express();
 validateEnv();
 const mongoClientPromise = connectDatabase();
+app.use('/api/stripe/webhook', express.text({ type: 'application/json' }));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -71,6 +74,8 @@ app.use('/api', reviewRoute);
 app.use('/api', adminRoute);
 app.use('/api', notificationRoute);
 app.use('/api', orderRoute);
+app.use('/api', cartRoute);
+app.use('/api', checkoutRoute);
 
 app.use(() => {
   throw new NotFoundException();

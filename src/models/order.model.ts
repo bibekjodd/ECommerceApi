@@ -17,6 +17,7 @@ export type OrderSchema = {
   orderedAt: NativeDate;
   estimatedDeliveryDate: NativeDate;
   deliveredAt: NativeDate | undefined;
+  cancelReason?: string;
 };
 
 const orderSchema = new Schema<OrderSchema, Model<OrderSchema>>(
@@ -27,9 +28,22 @@ const orderSchema = new Schema<OrderSchema, Model<OrderSchema>>(
       required: true
     },
     address: {
-      type: String,
-      maxlength: [200, 'Too long address'],
-      required: true
+      city: {
+        type: String,
+        maxlength: [200, 'Too long address']
+      },
+      country: {
+        type: String,
+        maxlength: [200, 'Too long address']
+      },
+      state: {
+        type: String,
+        maxlength: [200, 'Too long address']
+      },
+      postalCode: {
+        type: String,
+        maxlength: [200, 'Too long address']
+      }
     },
     deliveredAt: {
       type: Date
@@ -50,6 +64,7 @@ const orderSchema = new Schema<OrderSchema, Model<OrderSchema>>(
     paymentType: {
       type: String,
       enum: ['cash-on-delivery', 'online'],
+      default: 'cash-on-delivery',
       required: true
     },
     price: {
@@ -79,9 +94,13 @@ const orderSchema = new Schema<OrderSchema, Model<OrderSchema>>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
+    },
+    cancelReason: {
+      type: String,
+      maxlength: [500, "Cancel remark can't be more than 500 length"]
     }
   },
   { timestamps: true }
 );
 
-export const Order = model('Order', orderSchema);
+export const Order = model<OrderSchema, Model<OrderSchema>>('Order', orderSchema);

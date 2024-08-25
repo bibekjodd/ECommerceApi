@@ -23,7 +23,7 @@ router.get('/callback/google', passport.authenticate('google'), (req, res) => {
 });
 
 router.route('/profile').get(getProfile).put(updateProfile).delete(deleteProfile);
-router.get('/logout', logout);
+router.route('/logout').get(logout).post(logout);
 
 router.route('/password/forgot').post(forgotPassword);
 router.route('/password/reset/:token').put(resetPassword);

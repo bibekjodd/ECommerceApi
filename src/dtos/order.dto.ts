@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const cancelOrderSchema = z.object({
+  reason: z
+    .string()
+    .max(500, "Order cancellation remark can't be more than 500 characters")
+    .optional()
+});
+
 export const getOrdersSchema = z.object({
   limit: z
     .string()
