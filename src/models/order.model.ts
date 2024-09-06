@@ -1,4 +1,4 @@
-import { Model, Schema, Types, model } from 'mongoose';
+import { Document, Model, Schema, Types, model } from 'mongoose';
 
 export type OrderSchema = {
   _id: Types.ObjectId;
@@ -104,3 +104,4 @@ const orderSchema = new Schema<OrderSchema, Model<OrderSchema>>(
 );
 
 export const Order = model<OrderSchema, Model<OrderSchema>>('Order', orderSchema);
+export type TOrder = Document & OrderSchema;

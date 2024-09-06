@@ -1,6 +1,5 @@
 import { env } from '@/config/env.config';
 import {
-  deleteProfile,
   forgotPassword,
   getProfile,
   logout,
@@ -22,7 +21,7 @@ router.get('/callback/google', passport.authenticate('google'), (req, res) => {
   res.redirect(env.AUTH_REDIRECT_URI);
 });
 
-router.route('/profile').get(getProfile).put(updateProfile).delete(deleteProfile);
+router.route('/profile').get(getProfile).put(updateProfile);
 router.route('/logout').get(logout).post(logout);
 
 router.route('/password/forgot').post(forgotPassword);

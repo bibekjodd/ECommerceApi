@@ -21,6 +21,7 @@ import { notificationRoute } from './routes/notification.route';
 import { orderRoute } from './routes/order.route';
 import { productRoute } from './routes/product.route';
 import { reviewRoute } from './routes/review.route';
+import { statsRoute } from './routes/stats.route';
 import { userRoute } from './routes/user.route';
 
 export const app = express();
@@ -76,6 +77,7 @@ app.use('/api', notificationRoute);
 app.use('/api', orderRoute);
 app.use('/api', cartRoute);
 app.use('/api', checkoutRoute);
+app.use('/api', statsRoute);
 
 app.use(() => {
   throw new NotFoundException();

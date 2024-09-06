@@ -1,4 +1,4 @@
-import { Schema, Types, model } from 'mongoose';
+import { Document, Model, Schema, Types, model } from 'mongoose';
 
 type SalesSchema = {
   _id: Types.ObjectId;
@@ -12,7 +12,7 @@ type SalesSchema = {
   isCancelled: boolean;
 };
 
-const salesSchema = new Schema<SalesSchema>(
+const salesSchema = new Schema<SalesSchema, Model<SalesSchema>>(
   {
     deliveryDays: {
       type: Number,
@@ -40,4 +40,5 @@ const salesSchema = new Schema<SalesSchema>(
   { timestamps: true }
 );
 
-export const Sales = model('Sales', salesSchema);
+export const Sales = model<SalesSchema, Model<SalesSchema>>('Sales', salesSchema);
+export type TSale = Document & SalesSchema;

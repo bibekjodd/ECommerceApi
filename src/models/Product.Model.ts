@@ -19,6 +19,8 @@ type ProductSchema = {
   stock: number;
   numOfReviews: number;
   owner: Types.ObjectId;
+  listed: boolean;
+  views: number;
 };
 
 const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
@@ -131,6 +133,14 @@ const productSchema = new Schema<ProductSchema, Model<ProductSchema>>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
+    },
+    listed: {
+      type: Boolean,
+      default: true
+    },
+    views: {
+      type: Number,
+      default: 0
     }
   },
 

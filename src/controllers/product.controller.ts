@@ -71,6 +71,37 @@ export const updateProduct = handleAsync<{ id: string }, unknown, UpdateProductB
   }
 );
 
+export const updateVisibility = handleAsync<
+  { id: string },
+  unknown,
+  unknown,
+  { action?: 'list' | 'unlist' }
+>(async (req, res) => {
+  if (!req.user) throw new UnauthorizedException();
+
+  const { action } = req.query;
+  if (!(action === 'list' || action === 'unlist'))
+    throw new BadRequestException('Action method must be list or unlist');
+
+  const productId = req.params.id;
+  const product = await Product.findById(productId);
+
+  if (!product) throw new NotFoundException('Product is deleted or does not exist');
+  if (!(req.user.role === 'admin' || product.owner.toString() !== req.user._id.toString()))
+    throw new ForbiddenException(
+      'Only admin or owner can list or unlist the visibility the product'
+    );
+
+  product.listed = action === 'list';
+  product.save();
+  Notification.create({
+    user: product.owner.toString(),
+    title: `Product ${product.title} has been unlisted from the store`
+  });
+
+  return res.json({ message: 'Product unlisted successfully' });
+});
+
 export const deleteProduct = handleAsync<{ id: string }>(async (req, res) => {
   if (!req.user) throw new UnauthorizedException();
 
@@ -79,8 +110,8 @@ export const deleteProduct = handleAsync<{ id: string }>(async (req, res) => {
 
   if (!product) throw new NotFoundException('Product is already deleted or does not exist');
 
-  if (!(req.user.role === 'admin' || product?.owner.toString() == req.user._id.toString())) {
-    throw new ForbiddenException('You must be product owner or admin to delete product');
+  if (req.user.role !== 'admin') {
+    throw new ForbiddenException('You must be admin to delete product');
   }
 
   await Promise.all([product.deleteOne(), cascadeOnDeleteProduct(productId)]);
@@ -148,11 +179,12 @@ export const getProductDetails = handleAsync<{ id: string }>(async (req, res) =>
   if (!isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: 'Invalid Product Id' });
   }
-  const product = await Product.findById(req.params.id)
-    .populate('owner', selectUserProperties)
-    .lean();
+  const product = await Product.findById(req.params.id).populate('owner', selectUserProperties);
 
   if (!product) throw new NotFoundException("Product with this id doesn't exist");
+
+  product.views++;
+  product.save();
 
   return res.json({ product });
 });

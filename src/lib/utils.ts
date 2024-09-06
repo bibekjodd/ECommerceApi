@@ -41,3 +41,13 @@ export const generateResetPasswordToken = (): {
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
   return { token, hashedToken };
 };
+
+export const calculateQueryDate = (days: number): string => {
+  days--;
+  const targetDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  targetDate.setHours(0);
+  targetDate.setMinutes(0);
+  targetDate.setSeconds(0);
+  targetDate.setMilliseconds(0);
+  return targetDate.toISOString();
+};
