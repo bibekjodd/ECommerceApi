@@ -12,8 +12,8 @@ type UserSchema = {
   role: 'user' | 'admin';
   resetPasswordToken?: string;
   resetPasswordExpire?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: NativeDate;
+  updatedAt: NativeDate;
 };
 
 export const userSchema = new Schema<UserSchema, Model<UserSchema>>(

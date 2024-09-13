@@ -5,8 +5,8 @@ type CartSchema = {
   user: Types.ObjectId;
   product: Types.ObjectId;
   quantity: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: NativeDate;
+  updatedAt: NativeDate;
 };
 
 const cartSchema = new Schema<CartSchema, Model<CartSchema>>(

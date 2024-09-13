@@ -8,8 +8,10 @@ import {
 import { handleAsync } from '@/middlewares/handle-async';
 import { Notification } from '@/models/notification.model';
 import { Product, TProduct } from '@/models/product.model';
+import { Trending } from '@/models/trending.model';
 import { selectUserProperties } from '@/models/user.model';
 import { cascadeOnDeleteProduct } from '@/services/common.service';
+import { trendingProducts } from '@/services/product.service';
 import { isValidObjectId } from 'mongoose';
 
 export type CreateProductBody = Partial<TProduct>;
@@ -143,9 +145,14 @@ export type GetProductsQuery = Partial<{
   brand: string;
   featured: 'true';
   owner: string;
+  trending: 'true' | 'false';
 }>;
 export const queryProducts = handleAsync<unknown, unknown, unknown, GetProductsQuery>(
   async (req, res) => {
+    if (req.query.trending === 'true') {
+      const products = await trendingProducts();
+      return res.json({ totalResults: products.length, products });
+    }
     if (req.query.owner === 'self') {
       if (!req.user) throw new UnauthorizedException();
       req.query.owner = req.user._id.toString();
@@ -176,15 +183,15 @@ export const queryProducts = handleAsync<unknown, unknown, unknown, GetProductsQ
 );
 
 export const getProductDetails = handleAsync<{ id: string }>(async (req, res) => {
-  if (!isValidObjectId(req.params.id)) {
+  if (!isValidObjectId(req.params.id))
     return res.status(400).json({ message: 'Invalid Product Id' });
-  }
-  const product = await Product.findById(req.params.id).populate('owner', selectUserProperties);
 
+  const product = await Product.findById(req.params.id).populate('owner', selectUserProperties);
   if (!product) throw new NotFoundException("Product with this id doesn't exist");
 
   product.views++;
   product.save();
+  Trending.create({ product: product._id.toString() });
 
   return res.json({ product });
 });

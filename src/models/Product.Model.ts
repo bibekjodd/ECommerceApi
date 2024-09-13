@@ -3,8 +3,8 @@ import { Document, Model, Query, Schema, Types, model } from 'mongoose';
 
 type ProductSchema = {
   _id: Types.ObjectId;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: NativeDate;
+  updatedAt: NativeDate;
   title: string;
   description: Types.Array<string>;
   price: number;
