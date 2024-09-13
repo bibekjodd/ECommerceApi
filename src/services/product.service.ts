@@ -39,7 +39,7 @@ export const trendingProducts = async () => {
   lastWeek.setMilliseconds(0);
   const products = await Trending.aggregate([
     {
-      $match: { addedAt: { $gte: lastWeek.toISOString() } }
+      $match: { addedAt: { $gte: lastWeek } }
     },
     {
       $group: {

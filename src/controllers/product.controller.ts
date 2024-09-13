@@ -151,6 +151,7 @@ export const queryProducts = handleAsync<unknown, unknown, unknown, GetProductsQ
   async (req, res) => {
     if (req.query.trending === 'true') {
       const products = await trendingProducts();
+      console.log(products);
       return res.json({ totalResults: products.length, products });
     }
     if (req.query.owner === 'self') {
